@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <basalt/utils/sophus_utils.hpp>
 #include <memory>
+#include "basalt/optical_flow/optical_flow.h"
 
 namespace basalt {
 
@@ -247,6 +248,7 @@ struct PoseVelBiasState : public PoseVelState<Scalar_> {
 
   Vec3 bias_gyro;   ///< Gyroscope bias
   Vec3 bias_accel;  ///< Accelerometer bias
+  OpticalFlowInput::Ptr input_images{};
 };
 
 /// @brief Timestamped gyroscope and accelerometer measurements.
