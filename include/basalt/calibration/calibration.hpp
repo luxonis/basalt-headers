@@ -52,11 +52,12 @@ struct Calibration {
   using Ptr = std::shared_ptr<Calibration>;
   using SE3 = Sophus::SE3<Scalar>;
   using Vec3 = Eigen::Matrix<Scalar, 3, 1>;
+  using Vec2 = Eigen::Matrix<Scalar, 2, 1>;
 
   /// @brief Default constructor.
   Calibration() {
     cam_time_offset_ns = 0;
-    view_offset = 0;
+    view_offset.setConstant(0);
 
     imu_update_rate = 200;
 
@@ -81,7 +82,7 @@ struct Calibration {
 
     new_cam.resolution = resolution;
     new_cam.cam_time_offset_ns = cam_time_offset_ns;
-    new_cam.view_offset = view_offset;
+    new_cam.view_offset = view_offset.template cast<Scalar2>();
 
     new_cam.calib_accel_bias.getParam() =
         calib_accel_bias.getParam().template cast<Scalar2>();
@@ -126,13 +127,14 @@ struct Calibration {
   /// a timestamp aligned with IMU clock as \f$ t_c = t_r + o \f$.
   int64_t cam_time_offset_ns;
 
-  /// @brief Horizontal offset between stereo cameras in pixels.
+  /// @brief Offset between stereo cameras images in pixels.
+  ///
+  /// With this offset being \f$ O \f$, then a point in the first camera at
+  /// pixel coordinates \f$ X $\f should be close to \f$ X - O \f$ in
+  /// the second camera.
   ///
   /// @todo Should be generalized (to a matrix?) when dealing with more cameras.
-  /// With this offset being \f$ o \f$, then a point in the first camera at
-  /// pixel coordinates \f$ (x, y) $\f should be close to \f$ (x - o, y) \f$ in
-  /// the second camera.
-  int64_t view_offset;
+  Vec2 view_offset;
 
   /// @brief Static accelerometer bias from calibration.
   CalibAccelBias<Scalar> calib_accel_bias;
