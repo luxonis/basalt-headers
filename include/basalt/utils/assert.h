@@ -45,7 +45,16 @@ namespace basalt {
 
 #define UNUSED(x) (void)(x)
 
+#ifdef _MSC_VER
+#define BASALT_ATTRIBUTE_NORETURN __declspec(noreturn)
+#define BASALT_ATTRIBUTE_NORETURN_POST_FUNCTION
+#define BASALT_LIKELY(x) (x)
+
+#else
 #define BASALT_ATTRIBUTE_NORETURN __attribute__((noreturn))
+#define BASALT_ATTRIBUTE_NORETURN_POST_FUNCTION
+#define BASALT_LIKELY(x) __builtin_expect(x, 1)
+#endif
 
 inline BASALT_ATTRIBUTE_NORETURN void assertionFailed(char const* expr,
                                                       char const* function,
@@ -85,8 +94,6 @@ inline BASALT_ATTRIBUTE_NORETURN void logFatalMsg(char const* msg,
 
 }  // namespace basalt
 
-#define BASALT_LIKELY(x) __builtin_expect(x, 1)
-
 #if defined(BASALT_DISABLE_ASSERTS)
 
 #define BASALT_ASSERT(expr) ((void)0)
@@ -97,6 +104,26 @@ inline BASALT_ATTRIBUTE_NORETURN void logFatalMsg(char const* msg,
 
 #else
 
+#ifdef _MSC_VER
+
+#define BASALT_ASSERT(expr)                                              \
+  (BASALT_LIKELY(!!(expr))                                               \
+       ? ((void)0)                                                       \
+       : ::basalt::assertionFailed(#expr, __FUNCTION__, __FILE__, \
+                                   __LINE__))
+
+#define BASALT_ASSERT_MSG(expr, msg)                                      \
+  (BASALT_LIKELY(!!(expr))                                                \
+       ? ((void)0)                                                        \
+       : ::basalt::assertionFailedMsg(#expr, msg, __FUNCTION__, __FILE__, \
+                                      __LINE__))
+
+#define BASALT_ASSERT_STREAM(expr, msg)  \
+  (BASALT_LIKELY(!!(expr))               \
+       ? ((void)0)                       \
+       : (std::cerr << msg << std::endl, \
+          ::basalt::assertionFailed(#expr, __FUNCTION__, __FILE__, __LINE__)))
+#else
 #define BASALT_ASSERT(expr)                                              \
   (BASALT_LIKELY(!!(expr))                                               \
        ? ((void)0)                                                       \
@@ -115,12 +142,23 @@ inline BASALT_ATTRIBUTE_NORETURN void logFatalMsg(char const* msg,
        : (std::cerr << msg << std::endl,                                  \
           ::basalt::assertionFailed(#expr, __PRETTY_FUNCTION__, __FILE__, \
                                     __LINE__)))
-
+#endif
 #endif
 
+#ifdef _MSC_VER
+#define BASALT_LOG_FATAL(msg) \
+  ::basalt::logFatalMsg(msg, __FUNCTION__, __FILE__, __LINE__)
+
+#define BASALT_LOG_FATAL_STREAM(msg) \
+  (std::cerr << msg << std::endl,    \
+   ::basalt::logFatal(__FUNCTION__, __FILE__, __LINE__))
+
+#else
 #define BASALT_LOG_FATAL(msg) \
   ::basalt::logFatalMsg(msg, __PRETTY_FUNCTION__, __FILE__, __LINE__)
 
 #define BASALT_LOG_FATAL_STREAM(msg) \
   (std::cerr << msg << std::endl,    \
    ::basalt::logFatal(__PRETTY_FUNCTION__, __FILE__, __LINE__))
+
+#endif
