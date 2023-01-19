@@ -69,19 +69,35 @@ struct Calibration {
     gyro_bias_std.setConstant(0.0001);
   }
 
-  Vec2 viewOffset(const Vec2& c0_uv, Scalar depth) const {
-    SE3 T_c1_c0 = T_i_c[1].inverse() * T_i_c[0];
+  /// Takes a 3D point described with the UV coordinates and (non-inverse) depth
+  /// as viewed from the camera i and returns the UV coordinates and depth of
+  /// that same point in as viewed from the camera j.
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv,
+                          Scalar& cj_depth, size_t i, size_t j) const {
+    SE3 T_cj_ci = T_i_c[j].inverse() * T_i_c[i];
+    bool valid = true;
 
-    Vec4 c0_xyzw;
-    intrinsics[0].unproject(c0_uv, c0_xyzw);
-    c0_xyzw = c0_xyzw * depth;
-    c0_xyzw.w() = 1;
+    Vec4 ci_xyzw;
+    valid &= intrinsics[i].unproject(ci_uv, ci_xyzw);
+    ci_xyzw = ci_xyzw * ci_depth;
+    ci_xyzw.w() = 1;
 
-    Vec4 c1_xyzw = T_c1_c0 * c0_xyzw;
-    Vec2 c1_uv;
-    intrinsics[1].project(c1_xyzw, c1_uv);
+    Vec4 cj_xyzw = T_cj_ci * ci_xyzw;
+    valid &= intrinsics[j].project(cj_xyzw, cj_uv);
 
-    Vec2 view_offset = c0_uv - c1_uv;
+    Vec4 ci_cj_xyzw = T_cj_ci.inverse().translation().homogeneous();
+    cj_depth = (ci_xyzw - ci_cj_xyzw).norm();
+
+    return valid;
+  }
+
+  Vec2 viewOffset(const Vec2& ci_uv, Scalar ci_depth, size_t i,
+                  size_t j) const {
+    Vec2 cj_uv;
+    Scalar cj_depth;
+    projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, i, j);
+
+    Vec2 view_offset = ci_uv - cj_uv;
     return view_offset;
   }
 
