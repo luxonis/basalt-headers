@@ -72,23 +72,34 @@ struct Calibration {
   /// Takes a 3D point described with the UV coordinates and (non-inverse) depth
   /// as viewed from the camera i and returns the UV coordinates and depth of
   /// that same point in as viewed from the camera j.
+  /// @param T_ci_cj cam j pose w.r.t. cam i frame
+  /// @param i_idx camera index of camera i
+  /// @param j_idx camera index of camera j
   bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv,
-                          Scalar& cj_depth, size_t i, size_t j) const {
-    SE3 T_cj_ci = T_i_c[j].inverse() * T_i_c[i];
+                          Scalar& cj_depth, const SE3 T_ci_cj, size_t i_idx,
+                          size_t j_idx) const {
     bool valid = true;
 
     Vec4 ci_xyzw;
-    valid &= intrinsics[i].unproject(ci_uv, ci_xyzw);
+    valid &= intrinsics[i_idx].unproject(ci_uv, ci_xyzw);
     ci_xyzw = ci_xyzw * ci_depth;
     ci_xyzw.w() = 1;
 
-    Vec4 cj_xyzw = T_cj_ci * ci_xyzw;
-    valid &= intrinsics[j].project(cj_xyzw, cj_uv);
+    Vec4 cj_xyzw = T_ci_cj.inverse() * ci_xyzw;
+    valid &= intrinsics[j_idx].project(cj_xyzw, cj_uv);
 
-    Vec4 ci_cj_xyzw = T_cj_ci.inverse().translation().homogeneous();
+    Vec4 ci_cj_xyzw = T_ci_cj.translation().homogeneous();
     cj_depth = (ci_xyzw - ci_cj_xyzw).norm();
 
     return valid;
+  }
+
+  /// Calls projectBetweenCams assuming the pose between cam i and j is the one
+  /// from the calibration's extrinsics
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv,
+                          Scalar& cj_depth, size_t i, size_t j) const {
+    SE3 T_ci_cj = T_i_c[i].inverse() * T_i_c[j];
+    return projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, T_ci_cj, i, j);
   }
 
   Vec2 viewOffset(const Vec2& ci_uv, Scalar ci_depth, size_t i,
