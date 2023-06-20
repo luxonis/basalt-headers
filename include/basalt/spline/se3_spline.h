@@ -510,9 +510,7 @@ class Se3Spline {
             .log();
 
     if (Jr) {
-      Eigen::Matrix3d Jrot;
-      Sophus::leftJacobianSO3(res, Jrot);
-
+      Eigen::Matrix3d Jrot = Sophus::leftJacobianSO3(res);
       for (int i = 0; i < N; i++) {
         Jr->d_val_d_knot[i] = Jrot * Jr->d_val_d_knot[i];
       }

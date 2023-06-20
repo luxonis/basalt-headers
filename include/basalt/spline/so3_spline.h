@@ -246,11 +246,8 @@ class So3Spline {
       Vec3 kdelta = delta * coeff[i + 1];
 
       if (J) {
-        Mat3 Jl_inv_delta;
-        Mat3 Jl_k_delta;
-
-        Sophus::leftJacobianInvSO3(delta, Jl_inv_delta);
-        Sophus::leftJacobianSO3(kdelta, Jl_k_delta);
+        Mat3 Jl_inv_delta = Sophus::leftJacobianInvSO3(delta);
+        Mat3 Jl_k_delta = Sophus::leftJacobianSO3(kdelta);
 
         J->d_val_d_knot[i] = J_helper;
         J_helper = coeff[i + 1] * res.matrix() * Jl_k_delta * Jl_inv_delta *
@@ -395,11 +392,11 @@ class So3Spline {
       SO3 r01 = p0.inverse() * p1;
       delta_vec[i] = r01.log();
 
-      Sophus::rightJacobianInvSO3(delta_vec[i], Jr_delta_inv[i]);
+      Jr_delta_inv[i] = Sophus::rightJacobianInvSO3(delta_vec[i]);
       Jr_delta_inv[i] *= p1.inverse().matrix();
 
       Vec3 k_delta = coeff[i + 1] * delta_vec[i];
-      Sophus::rightJacobianSO3(-k_delta, Jr_kdelta[i]);
+      Jr_kdelta[i] = Sophus::rightJacobianSO3(-k_delta);
 
       R_tmp[i] = accum.matrix();
       exp_k_delta[i] = Sophus::SO3d::exp(-k_delta);
@@ -557,11 +554,11 @@ class So3Spline {
       SO3 r01 = p0.inverse() * p1;
       delta_vec[i] = r01.log();
 
-      Sophus::rightJacobianInvSO3(delta_vec[i], Jr_delta_inv[i]);
+      Jr_delta_inv[i] = Sophus::rightJacobianInvSO3(delta_vec[i]);
       Jr_delta_inv[i] *= p1.inverse().matrix();
 
       Vec3 k_delta = coeff[i + 1] * delta_vec[i];
-      Sophus::rightJacobianSO3(-k_delta, Jr_kdelta[i]);
+      Jr_kdelta[i] = Sophus::rightJacobianSO3(-k_delta);
 
       exp_k_delta[i] = Sophus::SO3d::exp(-k_delta).matrix();
 

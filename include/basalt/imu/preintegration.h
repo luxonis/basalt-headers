@@ -117,11 +117,8 @@ class IntegratedImuMeasurement {
     if (d_next_d_gyro) {
       d_next_d_gyro->setZero();
 
-      Mat3 Jr;
-      Sophus::rightJacobianSO3(dt * data.gyro, Jr);
-
-      Mat3 Jr2;
-      Sophus::rightJacobianSO3(Scalar(0.5) * dt * data.gyro, Jr2);
+      Mat3 Jr = Sophus::rightJacobianSO3(dt * data.gyro);
+      Mat3 Jr2 = Sophus::rightJacobianSO3(Scalar(0.5) * dt * data.gyro);
 
       d_next_d_gyro->template block<3, 3>(3, 0) =
           next_state.T_w_i.so3().matrix() * Jr * dt;
@@ -252,8 +249,7 @@ class IntegratedImuMeasurement {
                 ba_diff.template segment<3>(6));
 
     if (d_res_d_state0 || d_res_d_state1) {
-      Mat3 J;
-      Sophus::rightJacobianInvSO3(res.template segment<3>(3), J);
+      Mat3 J = Sophus::rightJacobianInvSO3(res.template segment<3>(3));
 
       if (d_res_d_state0) {
         d_res_d_state0->setZero();
@@ -283,8 +279,7 @@ class IntegratedImuMeasurement {
       d_res_d_bg->setZero();
       *d_res_d_bg = -d_state_d_bg_;
 
-      Mat3 J;
-      Sophus::leftJacobianInvSO3(res.template segment<3>(3), J);
+      Mat3 J = Sophus::leftJacobianInvSO3(res.template segment<3>(3));
       d_res_d_bg->template block<3, 3>(3, 0) =
           J * d_state_d_bg_.template block<3, 3>(3, 0);
     }

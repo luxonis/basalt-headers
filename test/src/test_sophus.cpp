@@ -42,8 +42,7 @@ TEST(SophusUtilsCase, RightJacobianSO3) {
   Eigen::Vector3d phi;
   phi.setRandom();
 
-  Eigen::Matrix3d J_a;
-  Sophus::rightJacobianSO3(phi, J_a);
+  Eigen::Matrix3d J_a = Sophus::rightJacobianSO3(phi);
 
   Eigen::Vector3d x0;
   x0.setZero();
@@ -61,8 +60,7 @@ TEST(SophusUtilsCase, RightJacobianInvSO3) {
   Eigen::Vector3d phi;
   phi.setRandom();
 
-  Eigen::Matrix3d J_a;
-  Sophus::rightJacobianInvSO3(phi, J_a);
+  Eigen::Matrix3d J_a = Sophus::rightJacobianInvSO3(phi);
 
   Eigen::Vector3d x0;
   x0.setZero();
@@ -79,8 +77,7 @@ TEST(SophusUtilsCase, LeftJacobianSO3) {
   Eigen::Vector3d phi;
   phi.setRandom();
 
-  Eigen::Matrix3d J_a;
-  Sophus::leftJacobianSO3(phi, J_a);
+  Eigen::Matrix3d J_a = Sophus::leftJacobianSO3(phi);
 
   Eigen::Vector3d x0;
   x0.setZero();
@@ -98,8 +95,7 @@ TEST(SophusUtilsCase, LeftJacobianInvSO3) {
   Eigen::Vector3d phi;
   phi.setRandom();
 
-  Eigen::Matrix3d J_a;
-  Sophus::leftJacobianInvSO3(phi, J_a);
+  Eigen::Matrix3d J_a = Sophus::leftJacobianInvSO3(phi);
 
   Eigen::Vector3d x0;
   x0.setZero();
@@ -116,8 +112,7 @@ TEST(SophusUtilsCase, RightJacobianSE3Decoupled) {
   Sophus::Vector6d phi;
   phi.setRandom();
 
-  Sophus::Matrix6d J_a;
-  Sophus::rightJacobianSE3Decoupled(phi, J_a);
+  Sophus::Matrix6d J_a = Sophus::rightJacobianSE3Decoupled(phi);
 
   Sophus::Vector6d x0;
   x0.setZero();
@@ -135,8 +130,7 @@ TEST(SophusUtilsCase, RightJacobianInvSE3Decoupled) {
   Sophus::Vector6d phi;
   phi.setRandom();
 
-  Sophus::Matrix6d J_a;
-  Sophus::rightJacobianInvSE3Decoupled(phi, J_a);
+  Sophus::Matrix6d J_a = Sophus::rightJacobianInvSE3Decoupled(phi);
 
   Sophus::Vector6d x0;
   x0.setZero();
@@ -172,10 +166,7 @@ TEST(SophusUtilsCase, RotTestSO3) {
 
   double k = 0.6234234;
 
-  Eigen::Matrix3d J_a;
-  J_a.setZero();
-
-  Sophus::rightJacobianSO3(k * t1, J_a);
+  Eigen::Matrix3d J_a = Sophus::rightJacobianSO3(k * t1);
   J_a = -k * Sophus::SO3d::exp(k * t1).matrix() * Sophus::SO3d::hat(t2) * J_a;
 
   Eigen::Vector3d x0;
@@ -333,9 +324,8 @@ TEST(SophusUtilsCase, RightJacobianSim3Decoupled) {
   Sophus::Vector7d phi;
   phi.setRandom();
 
-  Sophus::Matrix7d J_a;
+  Sophus::Matrix7d J_a = Sophus::rightJacobianSim3Decoupled(phi);
   Sophus::Matrix7d J_n;
-  Sophus::rightJacobianSim3Decoupled(phi, J_a);
 
   Sophus::Vector7d x0;
   x0.setZero();
@@ -353,9 +343,8 @@ TEST(SophusUtilsCase, RightJacobianInvSim3Decoupled) {
   Sophus::Vector7d phi;
   phi.setRandom();
 
-  Sophus::Matrix7d J_a;
+  Sophus::Matrix7d J_a = Sophus::rightJacobianInvSim3Decoupled(phi);
   Sophus::Matrix7d J_n;
-  Sophus::rightJacobianInvSim3Decoupled(phi, J_a);
 
   Sophus::Vector7d x0;
   x0.setZero();
@@ -402,10 +391,8 @@ TEST(SophusUtilsCase, RelPoseTestRightIncSE3) {
     Sophus::SE3d T_j_i = T_w_j.inverse() * T_w_i;
     Sophus::Vector6d res = Sophus::se3_logd(T_ij_meas * T_j_i);
 
-    Sophus::Matrix6d J_T_w_i;
-    Sophus::Matrix6d J_T_w_j;
-    Sophus::rightJacobianInvSE3Decoupled(res, J_T_w_i);
-    J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
+    Sophus::Matrix6d J_T_w_i = Sophus::rightJacobianInvSE3Decoupled(res);
+    Sophus::Matrix6d J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
 
     Sophus::Vector6d x0;
     x0.setZero();
@@ -442,11 +429,9 @@ TEST(SophusUtilsCase, RelPoseTestLeftIncSE3) {
     Sophus::SE3d T_j_i = T_w_j.inverse() * T_w_i;
     Sophus::Vector6d res = Sophus::se3_logd(T_ij_meas * T_j_i);
 
-    Sophus::Matrix6d J_T_w_i;
-    Sophus::Matrix6d J_T_w_j;
-    Sophus::rightJacobianInvSE3Decoupled(res, J_T_w_i);
+    Sophus::Matrix6d J_T_w_i = Sophus::rightJacobianInvSE3Decoupled(res);
     J_T_w_i = J_T_w_i * T_w_i.inverse().Adj();
-    J_T_w_j = -J_T_w_i;
+    Sophus::Matrix6d J_T_w_j = -J_T_w_i;
 
     Sophus::Vector6d x0;
     x0.setZero();
@@ -483,19 +468,14 @@ TEST(SophusUtilsCase, RelPoseTestDecoupledLeftIncSE3) {
     Sophus::SE3d T_j_i = T_w_j.inverse() * T_w_i;
     Sophus::Vector6d res = Sophus::se3_logd(T_ij_meas * T_j_i);
 
-    Sophus::Matrix6d J_T_w_i;
-    Sophus::Matrix6d J_T_w_j;
-    Sophus::Matrix6d rr_i;
-    Sophus::Matrix6d rr_j;
+    Sophus::Matrix6d J_T_w_i = Sophus::rightJacobianInvSE3Decoupled(res);
+    Sophus::Matrix6d J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
+    Sophus::Matrix6d rr_i = Sophus::Matrix6d::Zero();
+    Sophus::Matrix6d rr_j = Sophus::Matrix6d::Zero();
 
-    Sophus::rightJacobianInvSE3Decoupled(res, J_T_w_i);
-    J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
-
-    rr_i.setZero();
     rr_i.topLeftCorner<3, 3>() = rr_i.bottomRightCorner<3, 3>() =
         T_w_i.so3().inverse().matrix();
 
-    rr_j.setZero();
     rr_j.topLeftCorner<3, 3>() = rr_j.bottomRightCorner<3, 3>() =
         T_w_j.so3().inverse().matrix();
 
@@ -538,13 +518,9 @@ TEST(SophusUtilsCase, RelPoseTestRightIncSim3) {
     Sophus::Sim3d T_j_i = T_w_j.inverse() * T_w_i;
     Sophus::Vector7d res = Sophus::sim3_logd(T_ij_meas * T_j_i);
 
-    Sophus::Matrix7d J_T_w_i;
-    Sophus::Matrix7d J_T_w_j;
-    Sophus::rightJacobianInvSim3Decoupled(res, J_T_w_i);
-    J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
-
-    Sophus::Vector7d x0;
-    x0.setZero();
+    Sophus::Matrix7d J_T_w_i = Sophus::rightJacobianInvSim3Decoupled(res);
+    Sophus::Matrix7d J_T_w_j = -J_T_w_i * T_j_i.inverse().Adj();
+    Sophus::Vector7d x0 = Sophus::Vector7d::Zero();
 
     test_jacobian(
         "d_res_d_T_w_i", J_T_w_i,
