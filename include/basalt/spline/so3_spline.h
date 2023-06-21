@@ -116,9 +116,7 @@ class So3Spline {
   /// @brief Maximum time represented by spline
   ///
   /// @return maximum time represented by spline in nanoseconds
-  int64_t maxTimeNs() const {
-    return start_t_ns_ + (knots_.size() - N + 1) * dt_ns_ - 1;
-  }
+  int64_t maxTimeNs() const { return start_t_ns_ + (knots_.size() - N + 1) * dt_ns_ - 1; }
 
   /// @brief Minimum time represented by spline
   ///
@@ -212,16 +210,13 @@ class So3Spline {
   SO3 evaluate(int64_t time_ns, JacobianStruct* J = nullptr) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -250,8 +245,7 @@ class So3Spline {
         Mat3 Jl_k_delta = Sophus::leftJacobianSO3(kdelta);
 
         J->d_val_d_knot[i] = J_helper;
-        J_helper = coeff[i + 1] * res.matrix() * Jl_k_delta * Jl_inv_delta *
-                   p0.inverse().matrix();
+        J_helper = coeff[i + 1] * res.matrix() * Jl_k_delta * Jl_inv_delta * p0.inverse().matrix();
         J->d_val_d_knot[i] -= J_helper;
       }
       res *= SO3::exp(kdelta);
@@ -312,16 +306,13 @@ class So3Spline {
   Vec3 velocityBody(int64_t time_ns) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -358,16 +349,13 @@ class So3Spline {
   Vec3 velocityBody(int64_t time_ns, JacobianStruct* J) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -408,9 +396,7 @@ class So3Spline {
     d_vel_d_delta[0] = dcoeff[1] * R_tmp[0] * Jr_delta_inv[0];
     Vec3 rot_vel = delta_vec[0] * dcoeff[1];
     for (int i = 1; i < DEG; i++) {
-      d_vel_d_delta[i] =
-          R_tmp[i - 1] * SO3::hat(rot_vel) * Jr_kdelta[i] * coeff[i + 1] +
-          R_tmp[i] * dcoeff[i + 1];
+      d_vel_d_delta[i] = R_tmp[i - 1] * SO3::hat(rot_vel) * Jr_kdelta[i] * coeff[i + 1] + R_tmp[i] * dcoeff[i + 1];
       d_vel_d_delta[i] *= Jr_delta_inv[i];
 
       rot_vel = exp_k_delta[i] * rot_vel + delta_vec[i] * dcoeff[i + 1];
@@ -441,16 +427,13 @@ class So3Spline {
   Vec3 accelerationBody(int64_t time_ns, Vec3* vel_body = nullptr) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -505,23 +488,19 @@ class So3Spline {
   /// @param[out] J_vel if not nullptr, return the Jacobian of the rotational
   /// velocity in the body frame (side computation)
   /// @return rotational acceleration (3x1 vector)
-  Vec3 accelerationBody(int64_t time_ns, JacobianStruct* J_accel,
-                        Vec3* vel_body = nullptr,
+  Vec3 accelerationBody(int64_t time_ns, JacobianStruct* J_accel, Vec3* vel_body = nullptr,
                         JacobianStruct* J_vel = nullptr) const {
     BASALT_ASSERT(J_accel);
 
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -576,17 +555,13 @@ class So3Spline {
     Mat3 d_accel_d_delta[DEG];
     Mat3 d_vel_d_delta[DEG];
 
-    d_vel_d_delta[DEG - 1] = coeff[DEG] * exp_k_delta[DEG - 1] *
-                                 SO3::hat(rot_vel_arr[DEG - 2]) *
-                                 Jr_kdelta[DEG - 1] +
+    d_vel_d_delta[DEG - 1] = coeff[DEG] * exp_k_delta[DEG - 1] * SO3::hat(rot_vel_arr[DEG - 2]) * Jr_kdelta[DEG - 1] +
                              Mat3::Identity() * dcoeff[DEG];
 
     d_accel_d_delta[DEG - 1] =
-        coeff[DEG] * exp_k_delta[DEG - 1] * SO3::hat(rot_accel_arr[DEG - 2]) *
-            Jr_kdelta[DEG - 1] +
+        coeff[DEG] * exp_k_delta[DEG - 1] * SO3::hat(rot_accel_arr[DEG - 2]) * Jr_kdelta[DEG - 1] +
         Mat3::Identity() * ddcoeff[DEG] +
-        dcoeff[DEG] * (SO3::hat(rot_vel_arr[DEG - 1]) -
-                       SO3::hat(delta_vec[DEG - 1]) * d_vel_d_delta[DEG - 1]);
+        dcoeff[DEG] * (SO3::hat(rot_vel_arr[DEG - 1]) - SO3::hat(delta_vec[DEG - 1]) * d_vel_d_delta[DEG - 1]);
 
     Mat3 pj;
     pj.setIdentity();
@@ -600,22 +575,17 @@ class So3Spline {
 
       d_vel_d_delta[i] = Mat3::Identity() * dcoeff[i + 1];
       if (i >= 1) {
-        d_vel_d_delta[i] += coeff[i + 1] * exp_k_delta[i] *
-                            SO3::hat(rot_vel_arr[i - 1]) * Jr_kdelta[i];
+        d_vel_d_delta[i] += coeff[i + 1] * exp_k_delta[i] * SO3::hat(rot_vel_arr[i - 1]) * Jr_kdelta[i];
       }
 
-      d_accel_d_delta[i] =
-          Mat3::Identity() * ddcoeff[i + 1] +
-          dcoeff[i + 1] * (SO3::hat(rot_vel_arr[i]) -
-                           SO3::hat(delta_vec[i]) * d_vel_d_delta[i]);
+      d_accel_d_delta[i] = Mat3::Identity() * ddcoeff[i + 1] +
+                           dcoeff[i + 1] * (SO3::hat(rot_vel_arr[i]) - SO3::hat(delta_vec[i]) * d_vel_d_delta[i]);
       if (i >= 1) {
-        d_accel_d_delta[i] += coeff[i + 1] * exp_k_delta[i] *
-                              SO3::hat(rot_accel_arr[i - 1]) * Jr_kdelta[i];
+        d_accel_d_delta[i] += coeff[i + 1] * exp_k_delta[i] * SO3::hat(rot_accel_arr[i - 1]) * Jr_kdelta[i];
       }
 
       d_vel_d_delta[i] = pj * d_vel_d_delta[i];
-      d_accel_d_delta[i] =
-          pj * d_accel_d_delta[i] - SO3::hat(sj) * d_vel_d_delta[i];
+      d_accel_d_delta[i] = pj * d_accel_d_delta[i] - SO3::hat(sj) * d_vel_d_delta[i];
     }
 
     if (J_vel) {
@@ -660,20 +630,16 @@ class So3Spline {
   /// @param[out] accel_body if not nullptr, return the rotational acceleration
   /// in the body frame (3x1 vector) (side computation)
   /// @return rotational jerk (3x1 vector)
-  Vec3 jerkBody(int64_t time_ns, Vec3* vel_body = nullptr,
-                Vec3* accel_body = nullptr) const {
+  Vec3 jerkBody(int64_t time_ns, Vec3* vel_body = nullptr, Vec3* accel_body = nullptr) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<0>(p, u);
@@ -716,8 +682,7 @@ class So3Spline {
 
       rot_jerk = rot * rot_jerk;
       rot_jerk += dddcoeff[i + 1] * delta +
-                  (ddcoeff[i + 1] * rot_vel + 2 * dcoeff[i + 1] * rot_accel -
-                   dcoeff[i + 1] * rot_vel_cross_vel_current)
+                  (ddcoeff[i + 1] * rot_vel + 2 * dcoeff[i + 1] * rot_accel - dcoeff[i + 1] * rot_vel_cross_vel_current)
                       .cross(delta);
     }
 
@@ -743,11 +708,9 @@ class So3Spline {
   /// @param[out] res_const vector to store the result
   /// @param[in] t
   template <int Derivative, class Derived>
-  static void baseCoeffsWithTime(const Eigen::MatrixBase<Derived>& res_const,
-                                 _Scalar t) {
+  static void baseCoeffsWithTime(const Eigen::MatrixBase<Derived>& res_const, _Scalar t) {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, N);
-    Eigen::MatrixBase<Derived>& res =
-        const_cast<Eigen::MatrixBase<Derived>&>(res_const);
+    Eigen::MatrixBase<Derived>& res = const_cast<Eigen::MatrixBase<Derived>&>(res_const);
 
     res.setZero();
 
@@ -762,8 +725,7 @@ class So3Spline {
     }
   }
 
-  static const MatN
-      BLENDING_MATRIX;  ///< Blending matrix. See \ref computeBlendingMatrix.
+  static const MatN BLENDING_MATRIX;  ///< Blending matrix. See \ref computeBlendingMatrix.
 
   static const MatN BASE_COEFFICIENTS;  ///< Base coefficients matrix.
   ///< See \ref computeBaseCoefficients.
@@ -775,13 +737,11 @@ class So3Spline {
 };                                     // namespace basalt
 
 template <int _N, typename _Scalar>
-const typename So3Spline<_N, _Scalar>::MatN
-    So3Spline<_N, _Scalar>::BASE_COEFFICIENTS =
-        computeBaseCoefficients<_N, _Scalar>();
+const typename So3Spline<_N, _Scalar>::MatN So3Spline<_N, _Scalar>::BASE_COEFFICIENTS =
+    computeBaseCoefficients<_N, _Scalar>();
 
 template <int _N, typename _Scalar>
-const typename So3Spline<_N, _Scalar>::MatN
-    So3Spline<_N, _Scalar>::BLENDING_MATRIX =
-        computeBlendingMatrix<_N, _Scalar, true>();
+const typename So3Spline<_N, _Scalar>::MatN So3Spline<_N, _Scalar>::BLENDING_MATRIX =
+    computeBlendingMatrix<_N, _Scalar, true>();
 
 }  // namespace basalt

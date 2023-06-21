@@ -71,9 +71,7 @@ class CalibAccelBias {
 
   /// @brief Return const vector of parameters.
   /// See detailed description in \ref CalibAccelBias.
-  inline const Eigen::Matrix<Scalar, 9, 1>& getParam() const {
-    return accel_bias_full_;
-  }
+  inline const Eigen::Matrix<Scalar, 9, 1>& getParam() const { return accel_bias_full_; }
 
   /// @brief Return vector of parameters. See detailed description in \ref
   /// CalibAccelBias.
@@ -82,9 +80,7 @@ class CalibAccelBias {
   /// @brief Increment the calibration vector
   ///
   /// @param inc increment vector
-  inline void operator+=(const Eigen::Matrix<Scalar, 9, 1>& inc) {
-    accel_bias_full_ += inc;
-  }
+  inline void operator+=(const Eigen::Matrix<Scalar, 9, 1>& inc) { accel_bias_full_ += inc; }
 
   /// @brief Return bias vector and scale matrix. See detailed description in
   /// \ref CalibAccelBias.
@@ -122,8 +118,7 @@ class CalibAccelBias {
 
     getBiasAndScale(accel_bias, accel_scale);
 
-    Mat33 accel_scale_inv =
-        (Eigen::Matrix3d::Identity() + accel_scale).inverse();
+    Mat33 accel_scale_inv = (Eigen::Matrix3d::Identity() + accel_scale).inverse();
 
     return accel_scale_inv * (calibrated_measurement + accel_bias);
   }
@@ -159,9 +154,7 @@ class CalibGyroBias {
 
   /// @brief Return const vector of parameters.
   /// See detailed description in \ref CalibGyroBias.
-  inline const Eigen::Matrix<Scalar, 12, 1>& getParam() const {
-    return gyro_bias_full_;
-  }
+  inline const Eigen::Matrix<Scalar, 12, 1>& getParam() const { return gyro_bias_full_; }
 
   /// @brief Return vector of parameters.
   /// See detailed description in \ref CalibGyroBias.
@@ -170,9 +163,7 @@ class CalibGyroBias {
   /// @brief Increment the calibration vector
   ///
   /// @param inc increment vector
-  inline void operator+=(const Eigen::Matrix<Scalar, 12, 1>& inc) {
-    gyro_bias_full_ += inc;
-  }
+  inline void operator+=(const Eigen::Matrix<Scalar, 12, 1>& inc) { gyro_bias_full_ += inc; }
 
   /// @brief Return bias vector and scale matrix. See detailed description in
   /// \ref CalibGyroBias.

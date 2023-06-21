@@ -75,9 +75,8 @@ struct Calibration {
   /// @param T_ci_cj cam j pose w.r.t. cam i frame
   /// @param i_idx camera index of camera i
   /// @param j_idx camera index of camera j
-  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv,
-                          Scalar& cj_depth, const SE3 T_ci_cj, size_t i_idx,
-                          size_t j_idx) const {
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv, Scalar& cj_depth, const SE3 T_ci_cj,
+                          size_t i_idx, size_t j_idx) const {
     bool valid = true;
 
     Vec4 ci_xyzw;
@@ -96,14 +95,12 @@ struct Calibration {
 
   /// Calls projectBetweenCams assuming the pose between cam i and j is the one
   /// from the calibration's extrinsics
-  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv,
-                          Scalar& cj_depth, size_t i, size_t j) const {
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv, Scalar& cj_depth, size_t i, size_t j) const {
     SE3 T_ci_cj = T_i_c[i].inverse() * T_i_c[j];
     return projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, T_ci_cj, i, j);
   }
 
-  Vec2 viewOffset(const Vec2& ci_uv, Scalar ci_depth, size_t i,
-                  size_t j) const {
+  Vec2 viewOffset(const Vec2& ci_uv, Scalar ci_depth, size_t i, size_t j) const {
     Vec2 cj_uv;
     Scalar cj_depth;
     projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, i, j);
@@ -117,20 +114,15 @@ struct Calibration {
   Calibration<Scalar2> cast() const {
     Calibration<Scalar2> new_cam;
 
-    for (const auto& v : T_i_c)
-      new_cam.T_i_c.emplace_back(v.template cast<Scalar2>());
-    for (const auto& v : intrinsics)
-      new_cam.intrinsics.emplace_back(v.template cast<Scalar2>());
-    for (const auto& v : vignette)
-      new_cam.vignette.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : T_i_c) new_cam.T_i_c.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : intrinsics) new_cam.intrinsics.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : vignette) new_cam.vignette.emplace_back(v.template cast<Scalar2>());
 
     new_cam.resolution = resolution;
     new_cam.cam_time_offset_ns = cam_time_offset_ns;
 
-    new_cam.calib_accel_bias.getParam() =
-        calib_accel_bias.getParam().template cast<Scalar2>();
-    new_cam.calib_gyro_bias.getParam() =
-        calib_gyro_bias.getParam().template cast<Scalar2>();
+    new_cam.calib_accel_bias.getParam() = calib_accel_bias.getParam().template cast<Scalar2>();
+    new_cam.calib_gyro_bias.getParam() = calib_gyro_bias.getParam().template cast<Scalar2>();
 
     new_cam.imu_update_rate = imu_update_rate;
 
@@ -194,17 +186,13 @@ struct Calibration {
   ///
   /// \f$ \sigma_d = \sigma_c \sqrt{r} \f$, where \f$ r \f$ is IMU update
   /// rate.
-  inline Vec3 dicrete_time_gyro_noise_std() const {
-    return gyro_noise_std * std::sqrt(imu_update_rate);
-  }
+  inline Vec3 dicrete_time_gyro_noise_std() const { return gyro_noise_std * std::sqrt(imu_update_rate); }
 
   /// @brief Dicrete time accelerometer noise standard deviation.
   ///
   /// \f$ \sigma_d = \sigma_c \sqrt{r} \f$, where \f$ r \f$ is IMU update
   /// rate.
-  inline Vec3 dicrete_time_accel_noise_std() const {
-    return accel_noise_std * std::sqrt(imu_update_rate);
-  }
+  inline Vec3 dicrete_time_accel_noise_std() const { return accel_noise_std * std::sqrt(imu_update_rate); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

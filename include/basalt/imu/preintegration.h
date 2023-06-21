@@ -73,21 +73,16 @@ class IntegratedImuMeasurement {
   /// accelerometer measurement
   /// @param[out] d_next_d_gyro Jacobian of the predicted state with respect
   /// gyroscope measurement
-  inline static void propagateState(const PoseVelState<Scalar>& curr_state,
-                                    const ImuData<Scalar>& data,
-                                    PoseVelState<Scalar>& next_state,
-                                    MatNN* d_next_d_curr = nullptr,
-                                    MatN3* d_next_d_accel = nullptr,
-                                    MatN3* d_next_d_gyro = nullptr) {
-    BASALT_ASSERT_STREAM(
-        data.t_ns > curr_state.t_ns,
-        "data.t_ns " << data.t_ns << " curr_state.t_ns " << curr_state.t_ns);
+  inline static void propagateState(const PoseVelState<Scalar>& curr_state, const ImuData<Scalar>& data,
+                                    PoseVelState<Scalar>& next_state, MatNN* d_next_d_curr = nullptr,
+                                    MatN3* d_next_d_accel = nullptr, MatN3* d_next_d_gyro = nullptr) {
+    BASALT_ASSERT_STREAM(data.t_ns > curr_state.t_ns,
+                         "data.t_ns " << data.t_ns << " curr_state.t_ns " << curr_state.t_ns);
 
     int64_t dt_ns = data.t_ns - curr_state.t_ns;
     Scalar dt = dt_ns * Scalar(1e-9);
 
-    SO3 R_w_i_new_2 =
-        curr_state.T_w_i.so3() * SO3::exp(Scalar(0.5) * dt * data.gyro);
+    SO3 R_w_i_new_2 = curr_state.T_w_i.so3() * SO3::exp(Scalar(0.5) * dt * data.gyro);
     Mat3 RR_w_i_new_2 = R_w_i_new_2.matrix();
 
     Vec3 accel_world = RR_w_i_new_2 * data.accel;
@@ -95,22 +90,19 @@ class IntegratedImuMeasurement {
     next_state.t_ns = data.t_ns;
     next_state.T_w_i.so3() = curr_state.T_w_i.so3() * SO3::exp(dt * data.gyro);
     next_state.vel_w_i = curr_state.vel_w_i + accel_world * dt;
-    next_state.T_w_i.translation() = curr_state.T_w_i.translation() +
-                                     curr_state.vel_w_i * dt +
-                                     0.5 * accel_world * dt * dt;
+    next_state.T_w_i.translation() =
+        curr_state.T_w_i.translation() + curr_state.vel_w_i * dt + 0.5 * accel_world * dt * dt;
 
     if (d_next_d_curr) {
       d_next_d_curr->setIdentity();
       d_next_d_curr->template block<3, 3>(0, 6).diagonal().setConstant(dt);
       d_next_d_curr->template block<3, 3>(6, 3) = SO3::hat(-accel_world * dt);
-      d_next_d_curr->template block<3, 3>(0, 3) =
-          d_next_d_curr->template block<3, 3>(6, 3) * dt * Scalar(0.5);
+      d_next_d_curr->template block<3, 3>(0, 3) = d_next_d_curr->template block<3, 3>(6, 3) * dt * Scalar(0.5);
     }
 
     if (d_next_d_accel) {
       d_next_d_accel->setZero();
-      d_next_d_accel->template block<3, 3>(0, 0) =
-          Scalar(0.5) * RR_w_i_new_2 * dt * dt;
+      d_next_d_accel->template block<3, 3>(0, 0) = Scalar(0.5) * RR_w_i_new_2 * dt * dt;
       d_next_d_accel->template block<3, 3>(6, 0) = RR_w_i_new_2 * dt;
     }
 
@@ -120,13 +112,10 @@ class IntegratedImuMeasurement {
       Mat3 Jr = Sophus::rightJacobianSO3(dt * data.gyro);
       Mat3 Jr2 = Sophus::rightJacobianSO3(Scalar(0.5) * dt * data.gyro);
 
-      d_next_d_gyro->template block<3, 3>(3, 0) =
-          next_state.T_w_i.so3().matrix() * Jr * dt;
-      d_next_d_gyro->template block<3, 3>(6, 0) =
-          SO3::hat(-accel_world * dt) * RR_w_i_new_2 * Jr2 * Scalar(0.5) * dt;
+      d_next_d_gyro->template block<3, 3>(3, 0) = next_state.T_w_i.so3().matrix() * Jr * dt;
+      d_next_d_gyro->template block<3, 3>(6, 0) = SO3::hat(-accel_world * dt) * RR_w_i_new_2 * Jr2 * Scalar(0.5) * dt;
 
-      d_next_d_gyro->template block<3, 3>(0, 0) =
-          Scalar(0.5) * dt * d_next_d_gyro->template block<3, 3>(6, 0);
+      d_next_d_gyro->template block<3, 3>(0, 0) = Scalar(0.5) * dt * d_next_d_gyro->template block<3, 3>(6, 0);
     }
   }
 
@@ -140,11 +129,8 @@ class IntegratedImuMeasurement {
   }
 
   /// @brief Constructor with start time and bias estimates.
-  IntegratedImuMeasurement(int64_t start_t_ns, const Vec3& bias_gyro_lin,
-                           const Vec3& bias_accel_lin) noexcept
-      : start_t_ns_(start_t_ns),
-        bias_gyro_lin_(bias_gyro_lin),
-        bias_accel_lin_(bias_accel_lin) {
+  IntegratedImuMeasurement(int64_t start_t_ns, const Vec3& bias_gyro_lin, const Vec3& bias_accel_lin) noexcept
+      : start_t_ns_(start_t_ns), bias_gyro_lin_(bias_gyro_lin), bias_accel_lin_(bias_accel_lin) {
     cov_.setZero();
     d_state_d_ba_.setZero();
     d_state_d_bg_.setZero();
@@ -155,8 +141,7 @@ class IntegratedImuMeasurement {
   /// @param[in] data IMU data
   /// @param[in] accel_cov diagonal of accelerometer noise covariance matrix
   /// @param[in] gyro_cov diagonal of gyroscope noise covariance matrix
-  void integrate(const ImuData<Scalar>& data, const Vec3& accel_cov,
-                 const Vec3& gyro_cov) {
+  void integrate(const ImuData<Scalar>& data, const Vec3& accel_cov, const Vec3& gyro_cov) {
     ImuData<Scalar> data_corrected = data;
     data_corrected.t_ns -= start_t_ns_;
     data_corrected.accel -= bias_accel_lin_;
@@ -171,8 +156,7 @@ class IntegratedImuMeasurement {
     propagateState(delta_state_, data_corrected, new_state, &F, &A, &G);
 
     delta_state_ = new_state;
-    cov_ = F * cov_ * F.transpose() +
-           A * accel_cov.asDiagonal() * A.transpose() +
+    cov_ = F * cov_ * F.transpose() + A * accel_cov.asDiagonal() * A.transpose() +
            G * gyro_cov.asDiagonal() * G.transpose();
     sqrt_cov_inv_computed_ = false;
 
@@ -185,17 +169,13 @@ class IntegratedImuMeasurement {
   /// @param[in] state0 current state
   /// @param[in] g gravity vector
   /// @param[out] state1 predicted state
-  void predictState(const PoseVelState<Scalar>& state0, const Vec3& g,
-                    PoseVelState<Scalar>& state1) const {
+  void predictState(const PoseVelState<Scalar>& state0, const Vec3& g, PoseVelState<Scalar>& state1) const {
     Scalar dt = delta_state_.t_ns * Scalar(1e-9);
 
     state1.T_w_i.so3() = state0.T_w_i.so3() * delta_state_.T_w_i.so3();
-    state1.vel_w_i =
-        state0.vel_w_i + g * dt + state0.T_w_i.so3() * delta_state_.vel_w_i;
-    state1.T_w_i.translation() =
-        state0.T_w_i.translation() + state0.vel_w_i * dt +
-        Scalar(0.5) * g * dt * dt +
-        state0.T_w_i.so3() * delta_state_.T_w_i.translation();
+    state1.vel_w_i = state0.vel_w_i + g * dt + state0.T_w_i.so3() * delta_state_.vel_w_i;
+    state1.T_w_i.translation() = state0.T_w_i.translation() + state0.vel_w_i * dt + Scalar(0.5) * g * dt * dt +
+                                 state0.T_w_i.so3() * delta_state_.T_w_i.translation();
   }
 
   /// @brief Compute residual between two states given this pseudo-measurement
@@ -215,11 +195,9 @@ class IntegratedImuMeasurement {
   /// @param[out] d_res_d_ba if not nullptr, Jacobian of the residual with
   /// respect to accelerometer bias
   /// @return residual
-  VecN residual(const PoseVelState<Scalar>& state0, const Vec3& g,
-                const PoseVelState<Scalar>& state1, const Vec3& curr_bg,
-                const Vec3& curr_ba, MatNN* d_res_d_state0 = nullptr,
-                MatNN* d_res_d_state1 = nullptr, MatN3* d_res_d_bg = nullptr,
-                MatN3* d_res_d_ba = nullptr) const {
+  VecN residual(const PoseVelState<Scalar>& state0, const Vec3& g, const PoseVelState<Scalar>& state1,
+                const Vec3& curr_bg, const Vec3& curr_ba, MatNN* d_res_d_state0 = nullptr,
+                MatNN* d_res_d_state1 = nullptr, MatN3* d_res_d_bg = nullptr, MatN3* d_res_d_ba = nullptr) const {
     Scalar dt = delta_state_.t_ns * Scalar(1e-9);
     VecN res;
 
@@ -231,22 +209,18 @@ class IntegratedImuMeasurement {
     BASALT_ASSERT(ba_diff.template segment<3>(3).isApproxToConstant(0));
 
     Mat3 R0_inv = state0.T_w_i.so3().inverse().matrix();
-    Vec3 tmp =
-        R0_inv * (state1.T_w_i.translation() - state0.T_w_i.translation() -
-                  state0.vel_w_i * dt - Scalar(0.5) * g * dt * dt);
+    Vec3 tmp = R0_inv * (state1.T_w_i.translation() - state0.T_w_i.translation() - state0.vel_w_i * dt -
+                         Scalar(0.5) * g * dt * dt);
 
     res.template segment<3>(0) =
-        tmp - (delta_state_.T_w_i.translation() +
-               bg_diff.template segment<3>(0) + ba_diff.template segment<3>(0));
-    res.template segment<3>(3) =
-        (SO3::exp(bg_diff.template segment<3>(3)) * delta_state_.T_w_i.so3() *
-         state1.T_w_i.so3().inverse() * state0.T_w_i.so3())
-            .log();
+        tmp - (delta_state_.T_w_i.translation() + bg_diff.template segment<3>(0) + ba_diff.template segment<3>(0));
+    res.template segment<3>(3) = (SO3::exp(bg_diff.template segment<3>(3)) * delta_state_.T_w_i.so3() *
+                                  state1.T_w_i.so3().inverse() * state0.T_w_i.so3())
+                                     .log();
 
     Vec3 tmp2 = R0_inv * (state1.vel_w_i - state0.vel_w_i - g * dt);
     res.template segment<3>(6) =
-        tmp2 - (delta_state_.vel_w_i + bg_diff.template segment<3>(6) +
-                ba_diff.template segment<3>(6));
+        tmp2 - (delta_state_.vel_w_i + bg_diff.template segment<3>(6) + ba_diff.template segment<3>(6));
 
     if (d_res_d_state0 || d_res_d_state1) {
       Mat3 J = Sophus::rightJacobianInvSO3(res.template segment<3>(3));
@@ -280,8 +254,7 @@ class IntegratedImuMeasurement {
       *d_res_d_bg = -d_state_d_bg_;
 
       Mat3 J = Sophus::leftJacobianInvSO3(res.template segment<3>(3));
-      d_res_d_bg->template block<3, 3>(3, 0) =
-          J * d_state_d_bg_.template block<3, 3>(3, 0);
+      d_res_d_bg->template block<3, 3>(3, 0) = J * d_state_d_bg_.template block<3, 3>(3, 0);
     }
 
     return res;
@@ -351,12 +324,10 @@ class IntegratedImuMeasurement {
 
   PoseVelState<Scalar> delta_state_;  ///< Delta state
 
-  MatNN cov_;  ///< Measurement covariance
-  mutable MatNN
-      sqrt_cov_inv_;  ///< Cached square root inverse of measurement covariance
-  mutable bool sqrt_cov_inv_computed_{
-      false};  ///< If the cached square root inverse
-               ///< covariance is computed
+  MatNN cov_;                                  ///< Measurement covariance
+  mutable MatNN sqrt_cov_inv_;                 ///< Cached square root inverse of measurement covariance
+  mutable bool sqrt_cov_inv_computed_{false};  ///< If the cached square root inverse
+                                               ///< covariance is computed
 
   MatN3 d_state_d_ba_, d_state_d_bg_;
 

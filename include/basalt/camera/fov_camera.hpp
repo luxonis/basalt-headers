@@ -115,15 +115,11 @@ class FovCamera {
   /// @param[out] d_proj_d_param point if not nullptr computed Jacobian of
   /// projection with respect to intrinsic parameters
   /// @return if projection is valid
-  template <class DerivedPoint3D, class DerivedPoint2D,
-            class DerivedJ3D = std::nullptr_t,
+  template <class DerivedPoint3D, class DerivedPoint2D, class DerivedJ3D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                      Eigen::MatrixBase<DerivedPoint2D>& proj,
-                      DerivedJ3D d_proj_d_p3d = nullptr,
-                      DerivedJparam d_proj_d_param = nullptr) const {
-    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D,
-                                DerivedJparam, N>();
+  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d, Eigen::MatrixBase<DerivedPoint2D>& proj,
+                      DerivedJ3D d_proj_d_p3d = nullptr, DerivedJparam d_proj_d_param = nullptr) const {
+    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint3D>::Type p3d_eval(p3d);
 
@@ -246,15 +242,11 @@ class FovCamera {
   /// @param[out] d_p3d_d_param point if not nullptr computed Jacobian of
   /// unprojection with respect to intrinsic parameters
   /// @return if unprojection is valid
-  template <class DerivedPoint2D, class DerivedPoint3D,
-            class DerivedJ2D = std::nullptr_t,
+  template <class DerivedPoint2D, class DerivedPoint3D, class DerivedJ2D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj,
-                        Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                        DerivedJ2D d_p3d_d_proj = nullptr,
-                        DerivedJparam d_p3d_d_param = nullptr) const {
-    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D,
-                                  DerivedJparam, N>();
+  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj, Eigen::MatrixBase<DerivedPoint3D>& p3d,
+                        DerivedJ2D d_p3d_d_proj = nullptr, DerivedJparam d_p3d_d_param = nullptr) const {
+    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint2D>::Type proj_eval(proj);
 
@@ -280,16 +272,14 @@ class FovCamera {
 
     Scalar rd_inv = Scalar(1);
 
-    if (mul2tanwby2 > Sophus::Constants<Scalar>::epsilonSqrt() &&
-        rd > Sophus::Constants<Scalar>::epsilonSqrt()) {
+    if (mul2tanwby2 > Sophus::Constants<Scalar>::epsilonSqrt() && rd > Sophus::Constants<Scalar>::epsilonSqrt()) {
       sin_rd_w = std::sin(rd * w);
       cos_rd_w = std::cos(rd * w);
       ru = sin_rd_w / (rd * mul2tanwby2);
 
       rd_inv = Scalar(1) / rd;
 
-      d_ru_d_rd =
-          (w * cos_rd_w * rd - sin_rd_w) * rd_inv * rd_inv / mul2tanwby2;
+      d_ru_d_rd = (w * cos_rd_w * rd - sin_rd_w) * rd_inv * rd_inv / mul2tanwby2;
     }
 
     p3d.setZero();
@@ -297,8 +287,7 @@ class FovCamera {
     p3d[1] = my * ru;
     p3d[2] = cos_rd_w;
 
-    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> ||
-                  !std::is_same_v<DerivedJparam, std::nullptr_t>) {
+    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> || !std::is_same_v<DerivedJparam, std::nullptr_t>) {
       constexpr int SIZE_3D = DerivedPoint3D::SizeAtCompileTime;
       Eigen::Matrix<Scalar, SIZE_3D, 1> c0, c1;
 
@@ -330,9 +319,7 @@ class FovCamera {
         d_p3d_d_param->col(0) = -c0 * mx;
         d_p3d_d_param->col(1) = -c1 * my;
 
-        Scalar tmp = (cos_rd_w - (tan_w_2 * tan_w_2 + Scalar(1)) * sin_rd_w *
-                                     rd_inv / (2 * tan_w_2)) /
-                     mul2tanwby2;
+        Scalar tmp = (cos_rd_w - (tan_w_2 * tan_w_2 + Scalar(1)) * sin_rd_w * rd_inv / (2 * tan_w_2)) / mul2tanwby2;
 
         (*d_p3d_d_param)(0, 4) = mx * tmp;
         (*d_p3d_d_param)(1, 4) = my * tmp;

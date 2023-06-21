@@ -43,11 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace basalt {
 
-constexpr size_t POSE_SIZE = 6;  ///< Dimentionality of the pose state
-constexpr size_t POSE_VEL_SIZE =
-    9;  ///< Dimentionality of the pose-velocity state
-constexpr size_t POSE_VEL_BIAS_SIZE =
-    15;  ///< Dimentionality of the pose-velocity-bias state
+constexpr size_t POSE_SIZE = 6;            ///< Dimentionality of the pose state
+constexpr size_t POSE_VEL_SIZE = 9;        ///< Dimentionality of the pose-velocity state
+constexpr size_t POSE_VEL_BIAS_SIZE = 15;  ///< Dimentionality of the pose-velocity-bias state
 
 /// @brief State that consists of SE(3) pose at a certain time.
 template <class Scalar_>
@@ -130,8 +128,7 @@ struct PoseVelState : public PoseState<Scalar_> {
   template <class Scalar2>
   PoseVelState<Scalar2> cast() const {
     PoseVelState<Scalar2> a;
-    static_cast<PoseState<Scalar2>&>(a) =
-        PoseState<Scalar>::template cast<Scalar2>();
+    static_cast<PoseState<Scalar2>&>(a) = PoseState<Scalar>::template cast<Scalar2>();
     a.vel_w_i = vel_w_i.template cast<Scalar2>();
     return a;
   }
@@ -158,10 +155,8 @@ struct PoseVelState : public PoseState<Scalar_> {
   /// @param other state to compute difference.
   VecN diff(const PoseVelState<Scalar>& other) const {
     VecN res;
-    res.template segment<3>(0) =
-        other.T_w_i.translation() - this->T_w_i.translation();
-    res.template segment<3>(3) =
-        (other.T_w_i.so3() * this->T_w_i.so3().inverse()).log();
+    res.template segment<3>(0) = other.T_w_i.translation() - this->T_w_i.translation();
+    res.template segment<3>(3) = (other.T_w_i.so3() * this->T_w_i.so3().inverse()).log();
     res.template tail<3>() = other.vel_w_i - vel_w_i;
     return res;
   }
@@ -196,18 +191,14 @@ struct PoseVelBiasState : public PoseVelState<Scalar_> {
   /// @param vel_w_i linear velocity in world coordinate frame
   /// @param bias_gyro gyroscope bias
   /// @param bias_accel accelerometer bias
-  PoseVelBiasState(int64_t t_ns, const SE3& T_w_i, const Vec3& vel_w_i,
-                   const Vec3& bias_gyro, const Vec3& bias_accel)
-      : PoseVelState<Scalar>(t_ns, T_w_i, vel_w_i),
-        bias_gyro(bias_gyro),
-        bias_accel(bias_accel) {}
+  PoseVelBiasState(int64_t t_ns, const SE3& T_w_i, const Vec3& vel_w_i, const Vec3& bias_gyro, const Vec3& bias_accel)
+      : PoseVelState<Scalar>(t_ns, T_w_i, vel_w_i), bias_gyro(bias_gyro), bias_accel(bias_accel) {}
 
   /// @brief Create copy with different Scalar type.
   template <class Scalar2>
   PoseVelBiasState<Scalar2> cast() const {
     PoseVelBiasState<Scalar2> a;
-    static_cast<PoseVelState<Scalar2>&>(a) =
-        PoseVelState<Scalar>::template cast<Scalar2>();
+    static_cast<PoseVelState<Scalar2>&>(a) = PoseVelState<Scalar>::template cast<Scalar2>();
     a.bias_gyro = bias_gyro.template cast<Scalar2>();
     a.bias_accel = bias_accel.template cast<Scalar2>();
     return a;

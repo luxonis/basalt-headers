@@ -91,8 +91,7 @@ struct CopyObject {
   const T& obj;
 };
 
-inline void PitchedCopy(char* dst, unsigned int dst_pitch_bytes,
-                        const char* src, unsigned int src_pitch_bytes,
+inline void PitchedCopy(char* dst, unsigned int dst_pitch_bytes, const char* src, unsigned int src_pitch_bytes,
                         unsigned int width_bytes, unsigned int height) {
   if (dst_pitch_bytes == width_bytes && src_pitch_bytes == width_bytes) {
     std::memcpy(dst, src, height * width_bytes);
@@ -113,8 +112,7 @@ inline void PitchedCopy(char* dst, unsigned int dst_pitch_bytes,
 //
 // Source:
 //   https://github.com/ceres-solver/ceres-solver/blob/77c0c4d09c33f59f708ca0479aa2f1eb31fb6301/include/ceres/cubic_interpolation.h#L65
-inline void CubHermiteSpline(const double& p0, const double& p1,
-                             const double& p2, const double& p3, const double x,
+inline void CubHermiteSpline(const double& p0, const double& p1, const double& p2, const double& p3, const double x,
                              double* f, double* dfdx) {
   const double a = 0.5 * (-p0 + 3.0 * p1 - 3.0 * p2 + p3);
   const double b = 0.5 * (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3);
@@ -138,8 +136,7 @@ struct Image {
 
   inline Image() : pitch(0), ptr(0), w(0), h(0) {}
 
-  inline Image(T* ptr, size_t w, size_t h, size_t pitch)
-      : pitch(pitch), ptr(ptr), w(w), h(h) {}
+  inline Image(T* ptr, size_t w, size_t h, size_t pitch) : pitch(pitch), ptr(ptr), w(w), h(h) {}
 
   BASALT_HOST_DEVICE inline size_t SizeBytes() const { return pitch * h; }
 
@@ -147,9 +144,7 @@ struct Image {
 
   BASALT_HOST_DEVICE inline bool IsValid() const { return ptr != 0; }
 
-  BASALT_HOST_DEVICE inline bool IsContiguous() const {
-    return w * sizeof(T) == pitch;
-  }
+  BASALT_HOST_DEVICE inline bool IsContiguous() const { return w * sizeof(T) == pitch; }
 
   //////////////////////////////////////////////////////
   // Iterators
@@ -204,8 +199,7 @@ struct Image {
   inline void CopyFrom(const Image<T>& img) {
     if (IsValid() && img.IsValid()) {
       BASALT_ASSERT(w >= img.w && h >= img.h);
-      PitchedCopy((char*)ptr, pitch, (char*)img.ptr, img.pitch,
-                  std::min(img.w, w) * sizeof(T), std::min(img.h, h));
+      PitchedCopy((char*)ptr, pitch, (char*)img.ptr, img.pitch, std::min(img.w, w) * sizeof(T), std::min(img.h, h));
     } else if (img.IsValid() != IsValid()) {
       BASALT_ASSERT(false && "Cannot copy from / to an unasigned image.");
     }
@@ -216,8 +210,7 @@ struct Image {
   //////////////////////////////////////////////////////
 
   template <typename BinaryOperation>
-  BASALT_HOST_DEVICE inline T Accumulate(const T init,
-                                         BinaryOperation binary_op) {
+  BASALT_HOST_DEVICE inline T Accumulate(const T init, BinaryOperation binary_op) {
     BASALT_ASSERT(IsValid());
 
     T val = init;
@@ -234,8 +227,7 @@ struct Image {
   std::pair<T, T> MinMax() const {
     BASALT_ASSERT(IsValid());
 
-    std::pair<T, T> minmax(std::numeric_limits<T>::max(),
-                           std::numeric_limits<T>::lowest());
+    std::pair<T, T> minmax(std::numeric_limits<T>::max(), std::numeric_limits<T>::lowest());
     for (size_t r = 0; r < h; ++r) {
       const T* ptr = RowPtr(r);
       const T* end = ptr + w;
@@ -250,8 +242,7 @@ struct Image {
 
   template <typename Tout = T>
   Tout Sum() const {
-    return Accumulate((T)0,
-                      [](const T& lhs, const T& rhs) { return lhs + rhs; });
+    return Accumulate((T)0, [](const T& lhs, const T& rhs) { return lhs + rhs; });
   }
 
   template <typename Tout = T>
@@ -263,13 +254,9 @@ struct Image {
   // Direct Pixel Access
   //////////////////////////////////////////////////////
 
-  BASALT_HOST_DEVICE inline T* RowPtr(size_t y) {
-    return (T*)((unsigned char*)(ptr) + y * pitch);
-  }
+  BASALT_HOST_DEVICE inline T* RowPtr(size_t y) { return (T*)((unsigned char*)(ptr) + y * pitch); }
 
-  BASALT_HOST_DEVICE inline const T* RowPtr(size_t y) const {
-    return (T*)((unsigned char*)(ptr) + y * pitch);
-  }
+  BASALT_HOST_DEVICE inline const T* RowPtr(size_t y) const { return (T*)((unsigned char*)(ptr) + y * pitch); }
 
   BASALT_HOST_DEVICE inline T& operator()(size_t x, size_t y) {
     BASALT_BOUNDS_ASSERT(InBounds(x, y));
@@ -354,8 +341,7 @@ struct Image {
   // We assume that the pixel coordinates satisfy InBounds(x, y, 1). This also
   // means there is no clamping of pixel values.
   template <typename S>
-  inline Eigen::Matrix<S, 3, 1> interpGrad(
-      const Eigen::Matrix<S, 2, 1>& p) const {
+  inline Eigen::Matrix<S, 3, 1> interpGrad(const Eigen::Matrix<S, 2, 1>& p) const {
     return interpGrad<S>(p[0], p[1]);
   }
 
@@ -369,8 +355,7 @@ struct Image {
   // We assume that the pixel coordinates satisfy InBounds(x, y, 0). This also
   // means there is no clamping of pixel values.
   template <typename S>
-  inline Eigen::Matrix<S, 3, 1> interpGradBilinearExact(
-      const Eigen::Matrix<S, 2, 1>& p) const {
+  inline Eigen::Matrix<S, 3, 1> interpGradBilinearExact(const Eigen::Matrix<S, 2, 1>& p) const {
     return interpGradBilinearExact<S>(p[0], p[1]);
   }
 
@@ -400,14 +385,12 @@ struct Image {
   // values outside the image boundary that are needed for interpolation are
   // "clamped" to the boundary pixel values (following Ceres' implementation).
   template <typename S>
-  inline Eigen::Matrix<S, 3, 1> interpGradCubicSplines(
-      const Eigen::Matrix<S, 2, 1>& p) const {
+  inline Eigen::Matrix<S, 3, 1> interpGradCubicSplines(const Eigen::Matrix<S, 2, 1>& p) const {
     return interpGradCubicSplines<S>(p[0], p[1]);
   }
 
   // clamping on image border to stay consistent with ceres-solver
-  void clamp(int& ixm1, int& ixp1, int& ixp2, int& iym1, int& iyp1,
-             int& iyp2) const {
+  void clamp(int& ixm1, int& ixp1, int& ixp2, int& iym1, int& iyp1, int& iyp2) const {
     // corner cases negative
     if (iym1 < 0) iym1 = 0;
     if (ixm1 < 0) ixm1 = 0;
@@ -437,8 +420,8 @@ struct Image {
     S ddx = S(1.0) - dx;
     S ddy = S(1.0) - dy;
 
-    return ddx * ddy * (*this)(ix, iy) + ddx * dy * (*this)(ix, iy + 1) +
-           dx * ddy * (*this)(ix + 1, iy) + dx * dy * (*this)(ix + 1, iy + 1);
+    return ddx * ddy * (*this)(ix, iy) + ddx * dy * (*this)(ix, iy + 1) + dx * ddy * (*this)(ix + 1, iy) +
+           dx * dy * (*this)(ix + 1, iy + 1);
   }
 
   // for documentation see the alternative overload above
@@ -466,34 +449,29 @@ struct Image {
     const T& px0y1 = (*this)(ix, iy + 1);
     const T& px1y1 = (*this)(ix + 1, iy + 1);
 
-    res[0] = ddx * ddy * px0y0 + ddx * dy * px0y1 + dx * ddy * px1y0 +
-             dx * dy * px1y1;
+    res[0] = ddx * ddy * px0y0 + ddx * dy * px0y1 + dx * ddy * px1y0 + dx * dy * px1y1;
 
     const T& pxm1y0 = (*this)(ix - 1, iy);
     const T& pxm1y1 = (*this)(ix - 1, iy + 1);
 
-    S res_mx = ddx * ddy * pxm1y0 + ddx * dy * pxm1y1 + dx * ddy * px0y0 +
-               dx * dy * px0y1;
+    S res_mx = ddx * ddy * pxm1y0 + ddx * dy * pxm1y1 + dx * ddy * px0y0 + dx * dy * px0y1;
 
     const T& px2y0 = (*this)(ix + 2, iy);
     const T& px2y1 = (*this)(ix + 2, iy + 1);
 
-    S res_px = ddx * ddy * px1y0 + ddx * dy * px1y1 + dx * ddy * px2y0 +
-               dx * dy * px2y1;
+    S res_px = ddx * ddy * px1y0 + ddx * dy * px1y1 + dx * ddy * px2y0 + dx * dy * px2y1;
 
     res[1] = S(0.5) * (res_px - res_mx);
 
     const T& px0ym1 = (*this)(ix, iy - 1);
     const T& px1ym1 = (*this)(ix + 1, iy - 1);
 
-    S res_my = ddx * ddy * px0ym1 + ddx * dy * px0y0 + dx * ddy * px1ym1 +
-               dx * dy * px1y0;
+    S res_my = ddx * ddy * px0ym1 + ddx * dy * px0y0 + dx * ddy * px1ym1 + dx * dy * px1y0;
 
     const T& px0y2 = (*this)(ix, iy + 2);
     const T& px1y2 = (*this)(ix + 1, iy + 2);
 
-    S res_py = ddx * ddy * px0y1 + ddx * dy * px0y2 + dx * ddy * px1y1 +
-               dx * dy * px1y2;
+    S res_py = ddx * ddy * px0y1 + ddx * dy * px0y2 + dx * ddy * px1y1 + dx * dy * px1y2;
 
     res[2] = S(0.5) * (res_py - res_my);
 
@@ -709,30 +687,23 @@ struct Image {
   /// Even if this returns true, the point might still be out-of-bounds if
   /// pitch > width*sizeof(T).
   BASALT_HOST_DEVICE
-  bool InImage(const T* ptest) const {
-    return ptr <= ptest && ptest < RowPtr(h);
-  }
+  bool InImage(const T* ptest) const { return ptr <= ptest && ptest < RowPtr(h); }
 
   /// In bounds check for integer coordinates.
-  BASALT_HOST_DEVICE inline bool InBounds(int x, int y) const {
-    return 0 <= x && x < (int)w && 0 <= y && y < (int)h;
-  }
+  BASALT_HOST_DEVICE inline bool InBounds(int x, int y) const { return 0 <= x && x < (int)w && 0 <= y && y < (int)h; }
 
   /// In bounds check for floating point coordinates with given border.
   /// See note above for exact definition of "in bounds".
-  BASALT_HOST_DEVICE inline bool InBounds(float x, float y,
-                                          float border) const {
-    return border <= x && x < (w - border - 1) && border <= y &&
-           y < (h - border - 1);
+  BASALT_HOST_DEVICE inline bool InBounds(float x, float y, float border) const {
+    return border <= x && x < (w - border - 1) && border <= y && y < (h - border - 1);
   }
 
   /// In bounds check for integer or floating point coordinates with given
   /// border. See note above for exact definition of "in bounds", which is
   /// different for integers and floats.
   template <typename Derived>
-  BASALT_HOST_DEVICE inline bool InBounds(
-      const Eigen::MatrixBase<Derived>& p,
-      const typename Derived::Scalar border) const {
+  BASALT_HOST_DEVICE inline bool InBounds(const Eigen::MatrixBase<Derived>& p,
+                                          const typename Derived::Scalar border) const {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 2);
 
     using Scalar = typename Derived::Scalar;
@@ -742,34 +713,26 @@ struct Image {
       offset = Scalar(1);
     }
 
-    return border <= p[0] && p[0] < ((int)w - border - offset) &&
-           border <= p[1] && p[1] < ((int)h - border - offset);
+    return border <= p[0] && p[0] < ((int)w - border - offset) && border <= p[1] && p[1] < ((int)h - border - offset);
   }
 
   //////////////////////////////////////////////////////
   // Obtain slices / subimages
   //////////////////////////////////////////////////////
 
-  BASALT_HOST_DEVICE inline const Image<const T> SubImage(size_t x, size_t y,
-                                                          size_t width,
-                                                          size_t height) const {
+  BASALT_HOST_DEVICE inline const Image<const T> SubImage(size_t x, size_t y, size_t width, size_t height) const {
     BASALT_ASSERT((x + width) <= w && (y + height) <= h);
     return Image<const T>(RowPtr(y) + x, width, height, pitch);
   }
 
-  BASALT_HOST_DEVICE inline Image<T> SubImage(size_t x, size_t y, size_t width,
-                                              size_t height) {
+  BASALT_HOST_DEVICE inline Image<T> SubImage(size_t x, size_t y, size_t width, size_t height) {
     BASALT_ASSERT((x + width) <= w && (y + height) <= h);
     return Image<T>(RowPtr(y) + x, width, height, pitch);
   }
 
-  BASALT_HOST_DEVICE inline Image<T> Row(int y) const {
-    return SubImage(0, y, w, 1);
-  }
+  BASALT_HOST_DEVICE inline Image<T> Row(int y) const { return SubImage(0, y, w, 1); }
 
-  BASALT_HOST_DEVICE inline Image<T> Col(int x) const {
-    return SubImage(x, 0, 1, h);
-  }
+  BASALT_HOST_DEVICE inline Image<T> Col(int x) const { return SubImage(x, 0, 1, h); }
 
   //////////////////////////////////////////////////////
   // Data mangling
@@ -778,8 +741,7 @@ struct Image {
   template <typename TRecast>
   BASALT_HOST_DEVICE inline Image<TRecast> Reinterpret() const {
     BASALT_ASSERT_STREAM(sizeof(TRecast) == sizeof(T),
-                         "sizeof(TRecast) must match sizeof(T): "
-                             << sizeof(TRecast) << " != " << sizeof(T));
+                         "sizeof(TRecast) must match sizeof(T): " << sizeof(TRecast) << " != " << sizeof(T));
     return UnsafeReinterpret<TRecast>();
   }
 
@@ -793,8 +755,7 @@ struct Image {
   //////////////////////////////////////////////////////
 
   //    PANGOLIN_DEPRECATED inline
-  Image(size_t w, size_t h, size_t pitch, T* ptr)
-      : pitch(pitch), ptr(ptr), w(w), h(h) {}
+  Image(size_t w, size_t h, size_t pitch, T* ptr) : pitch(pitch), ptr(ptr), w(w), h(h) {}
 
   // Use RAII/move aware pangolin::ManagedImage instead
   //    PANGOLIN_DEPRECATED inline
@@ -845,23 +806,18 @@ class ManagedImage : public Image<T> {
   inline ManagedImage() {}
 
   // Row image
-  inline ManagedImage(size_t w)
-      : Image<T>(Allocator().allocate(w), w, 1, w * sizeof(T)) {}
+  inline ManagedImage(size_t w) : Image<T>(Allocator().allocate(w), w, 1, w * sizeof(T)) {}
 
-  inline ManagedImage(size_t w, size_t h)
-      : Image<T>(Allocator().allocate(w * h), w, h, w * sizeof(T)) {}
+  inline ManagedImage(size_t w, size_t h) : Image<T>(Allocator().allocate(w * h), w, h, w * sizeof(T)) {}
 
   inline ManagedImage(size_t w, size_t h, size_t pitch_bytes)
-      : Image<T>(Allocator().allocate((h * pitch_bytes) / sizeof(T) + 1), w, h,
-                 pitch_bytes) {}
+      : Image<T>(Allocator().allocate((h * pitch_bytes) / sizeof(T) + 1), w, h, pitch_bytes) {}
 
   // Not copy constructable
   inline ManagedImage(const ManagedImage<T>& other) = delete;
 
   // Move constructor
-  inline ManagedImage(ManagedImage<T, Allocator>&& img) {
-    *this = std::move(img);
-  }
+  inline ManagedImage(ManagedImage<T, Allocator>&& img) { *this = std::move(img); }
 
   // Move asignment
   inline void operator=(ManagedImage<T, Allocator>&& img) {
@@ -906,16 +862,14 @@ class ManagedImage : public Image<T> {
   }
 
   inline void Reinitialise(size_t w, size_t h, size_t pitch) {
-    if (!Image<T>::ptr || Image<T>::w != w || Image<T>::h != h ||
-        Image<T>::pitch != pitch) {
+    if (!Image<T>::ptr || Image<T>::w != w || Image<T>::h != h || Image<T>::pitch != pitch) {
       *this = ManagedImage<T, Allocator>(w, h, pitch);
     }
   }
 
   inline void Deallocate() {
     if (Image<T>::ptr) {
-      Allocator().deallocate(Image<T>::ptr,
-                             (Image<T>::h * Image<T>::pitch) / sizeof(T));
+      Allocator().deallocate(Image<T>::ptr, (Image<T>::h * Image<T>::pitch) / sizeof(T));
       Image<T>::ptr = nullptr;
     }
   }

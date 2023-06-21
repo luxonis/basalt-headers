@@ -116,8 +116,7 @@ class RdSpline {
   /// value) the Jacobian is zero for all knots except maximum N for value and
   /// all derivatives.
   struct JacobianStruct {
-    size_t
-        start_idx;  ///< Start index of the non-zero elements of the Jacobian.
+    size_t start_idx;                     ///< Start index of the non-zero elements of the Jacobian.
     std::array<_Scalar, N> d_val_d_knot;  ///< Value of nonzero Jacobians.
   };
 
@@ -128,8 +127,7 @@ class RdSpline {
   ///
   /// @param[in] time_interval_ns knot time interval in nanoseconds
   /// @param[in] start_time_ns start time of the spline in nanoseconds
-  RdSpline(int64_t time_interval_ns, int64_t start_time_ns = 0)
-      : dt_ns_(time_interval_ns), start_t_ns_(start_time_ns) {
+  RdSpline(int64_t time_interval_ns, int64_t start_time_ns = 0) : dt_ns_(time_interval_ns), start_t_ns_(start_time_ns) {
     pow_inv_dt_[0] = 1.0;
     pow_inv_dt_[1] = S_TO_NS / dt_ns_;
 
@@ -160,16 +158,12 @@ class RdSpline {
   /// @brief Set start time for spline
   ///
   /// @param[in] start_time_ns start time of the spline in nanoseconds
-  inline void setStartTimeNs(int64_t start_time_ns) {
-    start_t_ns_ = start_time_ns;
-  }
+  inline void setStartTimeNs(int64_t start_time_ns) { start_t_ns_ = start_time_ns; }
 
   /// @brief Maximum time represented by spline
   ///
   /// @return maximum time represented by spline in nanoseconds
-  int64_t maxTimeNs() const {
-    return start_t_ns_ + (knots_.size() - N + 1) * dt_ns_ - 1;
-  }
+  int64_t maxTimeNs() const { return start_t_ns_ + (knots_.size() - N + 1) * dt_ns_ - 1; }
 
   /// @brief Minimum time represented by spline
   ///
@@ -256,16 +250,13 @@ class RdSpline {
   VecD evaluate(int64_t time_ns, JacobianStruct* J = nullptr) const {
     int64_t st_ns = (time_ns - start_t_ns_);
 
-    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns
-                                              << " start_t_ns " << start_t_ns_);
+    BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << time_ns << " start_t_ns " << start_t_ns_);
 
     int64_t s = st_ns / dt_ns_;
     double u = double(st_ns % dt_ns_) / double(dt_ns_);
 
     BASALT_ASSERT_STREAM(s >= 0, "s " << s);
-    BASALT_ASSERT_STREAM(
-        size_t(s + N) <= knots_.size(),
-        "s " << s << " N " << N << " knots.size() " << knots_.size());
+    BASALT_ASSERT_STREAM(size_t(s + N) <= knots_.size(), "s " << s << " N " << N << " knots.size() " << knots_.size());
 
     VecN p;
     baseCoeffsWithTime<Derivative>(p, u);
@@ -294,14 +285,10 @@ class RdSpline {
   }
 
   /// @brief Alias for first derivative of spline. See \ref evaluate.
-  inline VecD velocity(int64_t time_ns, JacobianStruct* J = nullptr) const {
-    return evaluate<1>(time_ns, J);
-  }
+  inline VecD velocity(int64_t time_ns, JacobianStruct* J = nullptr) const { return evaluate<1>(time_ns, J); }
 
   /// @brief Alias for second derivative of spline. See \ref evaluate.
-  inline VecD acceleration(int64_t time_ns, JacobianStruct* J = nullptr) const {
-    return evaluate<2>(time_ns, J);
-  }
+  inline VecD acceleration(int64_t time_ns, JacobianStruct* J = nullptr) const { return evaluate<2>(time_ns, J); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -316,11 +303,9 @@ class RdSpline {
   /// @param[out] res_const vector to store the result
   /// @param[in] t
   template <int Derivative, class Derived>
-  static void baseCoeffsWithTime(const Eigen::MatrixBase<Derived>& res_const,
-                                 _Scalar t) {
+  static void baseCoeffsWithTime(const Eigen::MatrixBase<Derived>& res_const, _Scalar t) {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, N);
-    Eigen::MatrixBase<Derived>& res =
-        const_cast<Eigen::MatrixBase<Derived>&>(res_const);
+    Eigen::MatrixBase<Derived>& res = const_cast<Eigen::MatrixBase<Derived>&>(res_const);
 
     res.setZero();
 
@@ -338,8 +323,7 @@ class RdSpline {
   template <int, int, typename>
   friend class RdSpline;
 
-  static const MatN
-      BLENDING_MATRIX;  ///< Blending matrix. See \ref computeBlendingMatrix.
+  static const MatN BLENDING_MATRIX;  ///< Blending matrix. See \ref computeBlendingMatrix.
 
   static const MatN BASE_COEFFICIENTS;  ///< Base coefficients matrix.
                                         ///< See \ref computeBaseCoefficients.
@@ -351,13 +335,11 @@ class RdSpline {
 };
 
 template <int _DIM, int _N, typename _Scalar>
-const typename RdSpline<_DIM, _N, _Scalar>::MatN
-    RdSpline<_DIM, _N, _Scalar>::BASE_COEFFICIENTS =
-        computeBaseCoefficients<_N, _Scalar>();
+const typename RdSpline<_DIM, _N, _Scalar>::MatN RdSpline<_DIM, _N, _Scalar>::BASE_COEFFICIENTS =
+    computeBaseCoefficients<_N, _Scalar>();
 
 template <int _DIM, int _N, typename _Scalar>
-const typename RdSpline<_DIM, _N, _Scalar>::MatN
-    RdSpline<_DIM, _N, _Scalar>::BLENDING_MATRIX =
-        computeBlendingMatrix<_N, _Scalar, false>();
+const typename RdSpline<_DIM, _N, _Scalar>::MatN RdSpline<_DIM, _N, _Scalar>::BLENDING_MATRIX =
+    computeBlendingMatrix<_N, _Scalar, false>();
 
 }  // namespace basalt

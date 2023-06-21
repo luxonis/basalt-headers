@@ -32,30 +32,26 @@ void test_ceres_spline_helper_so3() {
 
       int64_t st_ns = (t_ns);
 
-      BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << t_ns
-                                                << " start_t_ns " << 0);
+      BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << t_ns << " start_t_ns " << 0);
 
       int64_t s = st_ns / dt_ns;
       double u = double(st_ns % dt_ns) / double(dt_ns);
 
       BASALT_ASSERT_STREAM(s >= 0, "s " << s);
       BASALT_ASSERT_STREAM(size_t(s + N) <= spline.getKnots().size(),
-                           "s " << s << " N " << N << " knots.size() "
-                                << spline.getKnots().size());
+                           "s " << s << " N " << N << " knots.size() " << spline.getKnots().size());
 
       std::vector<const double *> vec;
       for (int i = 0; i < N; i++) {
         vec.emplace_back(spline.getKnots()[s + i].data());
       }
 
-      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(
-          &vec[0], u, pow_inv_dt, &pos2);
-      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(
-          &vec[0], u, pow_inv_dt, nullptr, &vel2);
-      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(
-          &vec[0], u, pow_inv_dt, nullptr, nullptr, &accel2);
-      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(
-          &vec[0], u, pow_inv_dt, nullptr, nullptr, nullptr, &jerk2);
+      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(&vec[0], u, pow_inv_dt, &pos2);
+      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(&vec[0], u, pow_inv_dt, nullptr, &vel2);
+      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(&vec[0], u, pow_inv_dt, nullptr, nullptr,
+                                                                               &accel2);
+      basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SO3>(&vec[0], u, pow_inv_dt, nullptr, nullptr,
+                                                                               nullptr, &jerk2);
     }
 
     EXPECT_TRUE(pos1.matrix().isApprox(pos2.matrix()));
@@ -85,28 +81,23 @@ void test_ceres_spline_helper_rd() {
 
       int64_t st_ns = (t_ns);
 
-      BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << t_ns
-                                                << " start_t_ns " << 0);
+      BASALT_ASSERT_STREAM(st_ns >= 0, "st_ns " << st_ns << " time_ns " << t_ns << " start_t_ns " << 0);
 
       int64_t s = st_ns / dt_ns;
       double u = double(st_ns % dt_ns) / double(dt_ns);
 
       BASALT_ASSERT_STREAM(s >= 0, "s " << s);
       BASALT_ASSERT_STREAM(size_t(s + N) <= spline.getKnots().size(),
-                           "s " << s << " N " << N << " knots.size() "
-                                << spline.getKnots().size());
+                           "s " << s << " N " << N << " knots.size() " << spline.getKnots().size());
 
       std::vector<const double *> vec;
       for (int i = 0; i < N; i++) {
         vec.emplace_back(spline.getKnots()[s + i].data());
       }
 
-      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 0>(
-          &vec[0], u, pow_inv_dt, &pos2);
-      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 1>(
-          &vec[0], u, pow_inv_dt, &vel2);
-      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 2>(
-          &vec[0], u, pow_inv_dt, &accel2);
+      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 0>(&vec[0], u, pow_inv_dt, &pos2);
+      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 1>(&vec[0], u, pow_inv_dt, &vel2);
+      basalt::CeresSplineHelper<N>::template evaluate<double, DIM, 2>(&vec[0], u, pow_inv_dt, &accel2);
     }
 
     EXPECT_TRUE(pos1.isApprox(pos2));
@@ -138,9 +129,7 @@ void test_ceres_spline_helper_vel_se3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::SE3>(
-            &vec[0], u, pow_inv_dt, &pose, &vel);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u, pow_inv_dt, &pose, &vel);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -152,9 +141,8 @@ void test_ceres_spline_helper_vel_se3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::SE3>(
-                  &vec[0], u + inc, pow_inv_dt, &pose_new);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                       &pose_new);
 
               return (pose.inverse() * pose_new).log();
             },
@@ -185,9 +173,8 @@ void test_ceres_spline_helper_accel_se3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::SE3>(
-            &vec[0], u, pow_inv_dt, nullptr, nullptr, &accel);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u, pow_inv_dt, nullptr,
+                                                                                 nullptr, &accel);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -199,9 +186,8 @@ void test_ceres_spline_helper_accel_se3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::SE3>(
-                  &vec[0], u + inc, pow_inv_dt, nullptr, &vel);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                       nullptr, &vel);
 
               return vel;
             },
@@ -232,9 +218,8 @@ void test_ceres_spline_helper_jerk_se3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::SE3>(
-            &vec[0], u, pow_inv_dt, nullptr, nullptr, nullptr, &jerk);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u, pow_inv_dt, nullptr,
+                                                                                 nullptr, nullptr, &jerk);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -246,9 +231,8 @@ void test_ceres_spline_helper_jerk_se3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::SE3>(
-                  &vec[0], u + inc, pow_inv_dt, nullptr, nullptr, &accel);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::SE3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                       nullptr, nullptr, &accel);
 
               return accel;
             },
@@ -280,9 +264,7 @@ void test_ceres_spline_helper_vel_sim3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::Sim3>(
-            &vec[0], u, pow_inv_dt, &pose, &vel);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u, pow_inv_dt, &pose, &vel);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -294,9 +276,8 @@ void test_ceres_spline_helper_vel_sim3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::Sim3>(
-                  &vec[0], u + inc, pow_inv_dt, &pose_new);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                        &pose_new);
 
               return (pose.inverse() * pose_new).log();
             },
@@ -327,9 +308,8 @@ void test_ceres_spline_helper_accel_sim3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::Sim3>(
-            &vec[0], u, pow_inv_dt, nullptr, nullptr, &accel);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u, pow_inv_dt, nullptr,
+                                                                                  nullptr, &accel);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -341,9 +321,8 @@ void test_ceres_spline_helper_accel_sim3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::Sim3>(
-                  &vec[0], u + inc, pow_inv_dt, nullptr, &vel);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                        nullptr, &vel);
 
               return vel;
             },
@@ -374,9 +353,8 @@ void test_ceres_spline_helper_jerk_sim3() {
           vec.emplace_back(knots[i + j].data());
         }
 
-        basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                            Sophus::Sim3>(
-            &vec[0], u, pow_inv_dt, nullptr, nullptr, nullptr, &jerk);
+        basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u, pow_inv_dt, nullptr,
+                                                                                  nullptr, nullptr, &jerk);
 
         Eigen::Matrix<double, 1, 1> x0;
         x0.setZero();
@@ -388,9 +366,8 @@ void test_ceres_spline_helper_jerk_sim3() {
 
               double inc = x[0] / (dt_ns * 1e-9);
 
-              basalt::CeresSplineHelper<N>::template evaluate_lie<double,
-                                                                  Sophus::Sim3>(
-                  &vec[0], u + inc, pow_inv_dt, nullptr, nullptr, &accel);
+              basalt::CeresSplineHelper<N>::template evaluate_lie<double, Sophus::Sim3>(&vec[0], u + inc, pow_inv_dt,
+                                                                                        nullptr, nullptr, &accel);
 
               return accel;
             },
@@ -399,98 +376,50 @@ void test_ceres_spline_helper_jerk_sim3() {
     }
 }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSO3_4) {
-  test_ceres_spline_helper_so3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSO3_4) { test_ceres_spline_helper_so3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSO3_5) {
-  test_ceres_spline_helper_so3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSO3_5) { test_ceres_spline_helper_so3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSO3_6) {
-  test_ceres_spline_helper_so3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSO3_6) { test_ceres_spline_helper_so3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperRd_4) {
-  test_ceres_spline_helper_so3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperRd_4) { test_ceres_spline_helper_so3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperRd_5) {
-  test_ceres_spline_helper_so3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperRd_5) { test_ceres_spline_helper_so3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperRd_6) {
-  test_ceres_spline_helper_so3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperRd_6) { test_ceres_spline_helper_so3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel4) {
-  test_ceres_spline_helper_vel_se3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel4) { test_ceres_spline_helper_vel_se3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel5) {
-  test_ceres_spline_helper_vel_se3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel5) { test_ceres_spline_helper_vel_se3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel6) {
-  test_ceres_spline_helper_vel_se3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3vel6) { test_ceres_spline_helper_vel_se3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel4) {
-  test_ceres_spline_helper_accel_se3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel4) { test_ceres_spline_helper_accel_se3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel5) {
-  test_ceres_spline_helper_accel_se3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel5) { test_ceres_spline_helper_accel_se3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel6) {
-  test_ceres_spline_helper_accel_se3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3accel6) { test_ceres_spline_helper_accel_se3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk4) {
-  test_ceres_spline_helper_jerk_se3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk4) { test_ceres_spline_helper_jerk_se3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk5) {
-  test_ceres_spline_helper_jerk_se3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk5) { test_ceres_spline_helper_jerk_se3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk6) {
-  test_ceres_spline_helper_jerk_se3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSE3jerk6) { test_ceres_spline_helper_jerk_se3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel4) {
-  test_ceres_spline_helper_vel_sim3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel4) { test_ceres_spline_helper_vel_sim3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel5) {
-  test_ceres_spline_helper_vel_sim3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel5) { test_ceres_spline_helper_vel_sim3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel6) {
-  test_ceres_spline_helper_vel_sim3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3vel6) { test_ceres_spline_helper_vel_sim3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel4) {
-  test_ceres_spline_helper_accel_sim3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel4) { test_ceres_spline_helper_accel_sim3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel5) {
-  test_ceres_spline_helper_accel_sim3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel5) { test_ceres_spline_helper_accel_sim3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel6) {
-  test_ceres_spline_helper_accel_sim3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3accel6) { test_ceres_spline_helper_accel_sim3<6>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk4) {
-  test_ceres_spline_helper_jerk_sim3<4>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk4) { test_ceres_spline_helper_jerk_sim3<4>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk5) {
-  test_ceres_spline_helper_jerk_sim3<5>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk5) { test_ceres_spline_helper_jerk_sim3<5>(); }
 
-TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk6) {
-  test_ceres_spline_helper_jerk_sim3<6>();
-}
+TEST(CeresSplineTestSuite, CeresSplineHelperSim3jerk6) { test_ceres_spline_helper_jerk_sim3<6>(); }

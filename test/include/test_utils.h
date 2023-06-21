@@ -20,11 +20,10 @@ struct TestConstants<float> {
 };
 
 template <typename Derived1, typename Derived2, typename F>
-void test_jacobian(
-    const std::string &name, const Eigen::MatrixBase<Derived1> &Ja, F func,
-    const Eigen::MatrixBase<Derived2> &x0,
-    double eps = TestConstants<typename Derived1::Scalar>::epsilon,
-    double max_norm = TestConstants<typename Derived1::Scalar>::max_norm) {
+void test_jacobian(const std::string &name, const Eigen::MatrixBase<Derived1> &Ja, F func,
+                   const Eigen::MatrixBase<Derived2> &x0,
+                   double eps = TestConstants<typename Derived1::Scalar>::epsilon,
+                   double max_norm = TestConstants<typename Derived1::Scalar>::max_norm) {
   typedef typename Derived1::Scalar Scalar;
 
   Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Jn = Ja;
@@ -48,15 +47,13 @@ void test_jacobian(
 
   if (Jn.isZero(max_norm) && Ja.isZero(max_norm)) {
     EXPECT_TRUE((Jn - Ja).isZero(max_norm))
-        << name << ": Ja not equal to Jn(diff norm:" << (Jn - Ja).norm()
-        << ")\nJa: (norm: " << Ja.norm() << ")\n"
+        << name << ": Ja not equal to Jn(diff norm:" << (Jn - Ja).norm() << ")\nJa: (norm: " << Ja.norm() << ")\n"
         << Ja << "\nJn: (norm: " << Jn.norm() << ")\n"
         << Jn;
     //<< "\ndiff:\n" << Jn - Ja;
   } else {
     EXPECT_TRUE(Jn.isApprox(Ja, max_norm))
-        << name << ": Ja not equal to Jn (diff norm:" << (Jn - Ja).norm()
-        << ")\nJa: (norm: " << Ja.norm() << ")\n"
+        << name << ": Ja not equal to Jn (diff norm:" << (Jn - Ja).norm() << ")\nJa: (norm: " << Ja.norm() << ")\n"
         << Ja << "\nJn: (norm: " << Jn.norm() << ")\n"
         << Jn;
     //<< "\ndiff:\n" << Jn - Ja;

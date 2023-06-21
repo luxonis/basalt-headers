@@ -114,15 +114,11 @@ class PinholeCamera {
   /// @param[out] d_proj_d_param point if not nullptr computed Jacobian of
   /// projection with respect to intrinsic parameters
   /// @return if projection is valid
-  template <class DerivedPoint3D, class DerivedPoint2D,
-            class DerivedJ3D = std::nullptr_t,
+  template <class DerivedPoint3D, class DerivedPoint2D, class DerivedJ3D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                      Eigen::MatrixBase<DerivedPoint2D>& proj,
-                      DerivedJ3D d_proj_d_p3d = nullptr,
-                      DerivedJparam d_proj_d_param = nullptr) const {
-    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D,
-                                DerivedJparam, N>();
+  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d, Eigen::MatrixBase<DerivedPoint2D>& proj,
+                      DerivedJ3D d_proj_d_p3d = nullptr, DerivedJparam d_proj_d_param = nullptr) const {
+    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint3D>::Type p3d_eval(p3d);
 
@@ -189,15 +185,11 @@ class PinholeCamera {
   /// @param[out] d_p3d_d_param point if not nullptr computed Jacobian of
   /// unprojection with respect to intrinsic parameters
   /// @return if unprojection is valid
-  template <class DerivedPoint2D, class DerivedPoint3D,
-            class DerivedJ2D = std::nullptr_t,
+  template <class DerivedPoint2D, class DerivedPoint3D, class DerivedJ2D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj,
-                        Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                        DerivedJ2D d_p3d_d_proj = nullptr,
-                        DerivedJparam d_p3d_d_param = nullptr) const {
-    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D,
-                                  DerivedJparam, N>();
+  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj, Eigen::MatrixBase<DerivedPoint3D>& p3d,
+                        DerivedJ2D d_p3d_d_proj = nullptr, DerivedJparam d_p3d_d_param = nullptr) const {
+    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint2D>::Type proj_eval(proj);
 
@@ -219,10 +211,8 @@ class PinholeCamera {
     p3d[1] = my * norm_inv;
     p3d[2] = norm_inv;
 
-    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> ||
-                  !std::is_same_v<DerivedJparam, std::nullptr_t>) {
-      const Scalar d_norm_inv_d_r2 =
-          -Scalar(0.5) * norm_inv * norm_inv * norm_inv;
+    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> || !std::is_same_v<DerivedJparam, std::nullptr_t>) {
+      const Scalar d_norm_inv_d_r2 = -Scalar(0.5) * norm_inv * norm_inv * norm_inv;
 
       constexpr int SIZE_3D = DerivedPoint3D::SizeAtCompileTime;
       Eigen::Matrix<Scalar, SIZE_3D, 1> c0, c1;
@@ -294,13 +284,11 @@ class PinholeCamera {
     VecN vec1;
 
     // Euroc
-    vec1 << 460.76484651566468, 459.4051018049483, 365.8937161309615,
-        249.33499869752445;
+    vec1 << 460.76484651566468, 459.4051018049483, 365.8937161309615, 249.33499869752445;
     res.emplace_back(vec1);
 
     // TUM VI 512
-    vec1 << 191.14799816648748, 191.13150946585135, 254.95857715233118,
-        256.8815466235898;
+    vec1 << 191.14799816648748, 191.13150946585135, 254.95857715233118, 256.8815466235898;
     res.emplace_back(vec1);
 
     return res;

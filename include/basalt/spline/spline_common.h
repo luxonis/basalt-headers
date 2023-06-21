@@ -76,8 +76,7 @@ Eigen::Matrix<_Scalar, _N, _N> computeBlendingMatrix() {
       double sum = 0;
 
       for (int s = j; s < _N; ++s) {
-        sum += std::pow(-1.0, s - j) * binomialCoefficient(_N, s - j) *
-               std::pow(_N - s - 1.0, _N - 1.0 - i);
+        sum += std::pow(-1.0, s - j) * binomialCoefficient(_N, s - j) * std::pow(_N - s - 1.0, _N - 1.0 - i);
       }
       m(j, i) = binomialCoefficient(_N - 1, _N - 1 - i) * sum;
     }

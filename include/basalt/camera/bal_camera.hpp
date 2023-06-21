@@ -115,15 +115,11 @@ class BalCamera {
   /// @param[out] d_proj_d_param point if not nullptr computed Jacobian of
   /// projection with respect to intrinsic parameters
   /// @return if projection is valid
-  template <class DerivedPoint3D, class DerivedPoint2D,
-            class DerivedJ3D = std::nullptr_t,
+  template <class DerivedPoint3D, class DerivedPoint2D, class DerivedJ3D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                      Eigen::MatrixBase<DerivedPoint2D>& proj,
-                      DerivedJ3D d_proj_d_p3d = nullptr,
-                      DerivedJparam d_proj_d_param = nullptr) const {
-    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D,
-                                DerivedJparam, N>();
+  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d, Eigen::MatrixBase<DerivedPoint2D>& proj,
+                      DerivedJ3D d_proj_d_p3d = nullptr, DerivedJparam d_proj_d_param = nullptr) const {
+    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint3D>::Type p3d_eval(p3d);
 
@@ -159,8 +155,7 @@ class BalCamera {
       (*d_proj_d_p3d)(0, 0) = f * (rp + Scalar(2) * mx2 * tmp) / z;
       (*d_proj_d_p3d)(1, 1) = f * (rp + Scalar(2) * my2 * tmp) / z;
 
-      (*d_proj_d_p3d)(1, 0) = (*d_proj_d_p3d)(0, 1) =
-          f * my * mx * Scalar(2) * tmp / z;
+      (*d_proj_d_p3d)(1, 0) = (*d_proj_d_p3d)(0, 1) = f * my * mx * Scalar(2) * tmp / z;
 
       (*d_proj_d_p3d)(0, 2) = -f * mx * (rp + Scalar(2) * tmp * r2) / z;
       (*d_proj_d_p3d)(1, 2) = -f * my * (rp + Scalar(2) * tmp * r2) / z;
@@ -194,15 +189,11 @@ class BalCamera {
   /// @param[out] d_p3d_d_param point if not nullptr computed Jacobian of
   /// unprojection with respect to intrinsic parameters
   /// @return if unprojection is valid
-  template <class DerivedPoint2D, class DerivedPoint3D,
-            class DerivedJ2D = std::nullptr_t,
+  template <class DerivedPoint2D, class DerivedPoint3D, class DerivedJ2D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj,
-                        Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                        DerivedJ2D d_p3d_d_proj = nullptr,
-                        DerivedJparam d_p3d_d_param = nullptr) const {
-    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D,
-                                  DerivedJparam, N>();
+  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj, Eigen::MatrixBase<DerivedPoint3D>& p3d,
+                        DerivedJ2D d_p3d_d_proj = nullptr, DerivedJparam d_p3d_d_param = nullptr) const {
+    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint2D>::Type proj_eval(proj);
 
@@ -230,8 +221,7 @@ class BalCamera {
       J_p(1, 1) = (rp + Scalar(2) * p[1] * p[1] * tmp);
       J_p(1, 0) = J_p(0, 1) = p[0] * p[1] * Scalar(2) * tmp;
 
-      const Vec2 dp = (J_p.transpose() * J_p).inverse() * J_p.transpose() *
-                      (pp_computed - pp);
+      const Vec2 dp = (J_p.transpose() * J_p).inverse() * J_p.transpose() * (pp_computed - pp);
 
       p -= dp;
     }

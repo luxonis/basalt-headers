@@ -71,18 +71,15 @@ class GenericCamera {
   using Mat4 = Eigen::Matrix<Scalar, 4, 4>;
 
   /// Possible variants of camera models.
-  using VariantT =
-      std::variant<ExtendedUnifiedCamera<Scalar>, DoubleSphereCamera<Scalar>,
-                   KannalaBrandtCamera4<Scalar>, UnifiedCamera<Scalar>,
-                   PinholeCamera<Scalar>, PinholeRadtan8Camera<Scalar>>;
+  using VariantT = std::variant<ExtendedUnifiedCamera<Scalar>, DoubleSphereCamera<Scalar>, KannalaBrandtCamera4<Scalar>,
+                                UnifiedCamera<Scalar>, PinholeCamera<Scalar>, PinholeRadtan8Camera<Scalar>>;
 
  public:
   /// @brief Cast to different scalar type
   template <typename Scalar2>
   inline GenericCamera<Scalar2> cast() const {
     GenericCamera<Scalar2> res;
-    std::visit([&](const auto& v) { res.variant = v.template cast<Scalar2>(); },
-               variant);
+    std::visit([&](const auto& v) { res.variant = v.template cast<Scalar2>(); }, variant);
     return res;
   }
 
@@ -133,8 +130,7 @@ class GenericCamera {
   /// with respect to p3d
   /// @return if projection is valid
   template <typename DerivedJ3DPtr = std::nullptr_t>
-  inline bool project(const Vec4& p3d, Vec2& proj,
-                      DerivedJ3DPtr d_proj_d_p3d = nullptr) const {
+  inline bool project(const Vec4& p3d, Vec2& proj, DerivedJ3DPtr d_proj_d_p3d = nullptr) const {
     if constexpr (!std::is_same_v<DerivedJ3DPtr, std::nullptr_t>) {
       static_assert(std::is_pointer_v<DerivedJ3DPtr>);
       using DerivedJ3D = typename std::remove_pointer<DerivedJ3DPtr>::type;
@@ -142,9 +138,7 @@ class GenericCamera {
     }
 
     bool res;
-    std::visit(
-        [&](const auto& cam) { res = cam.project(p3d, proj, d_proj_d_p3d); },
-        variant);
+    std::visit([&](const auto& cam) { res = cam.project(p3d, proj, d_proj_d_p3d); }, variant);
     return res;
   }
 
@@ -158,8 +152,7 @@ class GenericCamera {
   /// with respect to proj
   /// @return if unprojection is valid
   template <typename DerivedJ2DPtr = std::nullptr_t>
-  inline bool unproject(const Vec2& proj, Vec4& p3d,
-                        DerivedJ2DPtr d_p3d_d_proj = nullptr) const {
+  inline bool unproject(const Vec2& proj, Vec4& p3d, DerivedJ2DPtr d_p3d_d_proj = nullptr) const {
     if constexpr (!std::is_same_v<DerivedJ2DPtr, std::nullptr_t>) {
       static_assert(std::is_pointer_v<DerivedJ2DPtr>);
       using DerivedJ2D = typename std::remove_pointer<DerivedJ2DPtr>::type;
@@ -167,9 +160,7 @@ class GenericCamera {
     }
 
     bool res;
-    std::visit(
-        [&](const auto& cam) { res = cam.unproject(proj, p3d, d_p3d_d_proj); },
-        variant);
+    std::visit([&](const auto& cam) { res = cam.unproject(proj, p3d, d_p3d_d_proj); }, variant);
     return res;
   }
 
@@ -183,8 +174,7 @@ class GenericCamera {
   /// with respect to p3d
   /// @return if projection is valid
   template <typename DerivedJ3DPtr = std::nullptr_t>
-  inline bool project(const Vec3& p3d, Vec2& proj,
-                      DerivedJ3DPtr d_proj_d_p3d = nullptr) const {
+  inline bool project(const Vec3& p3d, Vec2& proj, DerivedJ3DPtr d_proj_d_p3d = nullptr) const {
     if constexpr (!std::is_same_v<DerivedJ3DPtr, std::nullptr_t>) {
       static_assert(std::is_pointer_v<DerivedJ3DPtr>);
       using DerivedJ3D = typename std::remove_pointer<DerivedJ3DPtr>::type;
@@ -192,9 +182,7 @@ class GenericCamera {
     }
 
     bool res;
-    std::visit(
-        [&](const auto& cam) { res = cam.project(p3d, proj, d_proj_d_p3d); },
-        variant);
+    std::visit([&](const auto& cam) { res = cam.project(p3d, proj, d_proj_d_p3d); }, variant);
     return res;
   }
 
@@ -208,8 +196,7 @@ class GenericCamera {
   /// with respect to proj
   /// @return if unprojection is valid
   template <typename DerivedJ2DPtr = std::nullptr_t>
-  inline bool unproject(const Vec2& proj, Vec3& p3d,
-                        DerivedJ2DPtr d_p3d_d_proj = nullptr) const {
+  inline bool unproject(const Vec2& proj, Vec3& p3d, DerivedJ2DPtr d_p3d_d_proj = nullptr) const {
     if constexpr (!std::is_same_v<DerivedJ2DPtr, std::nullptr_t>) {
       static_assert(std::is_pointer_v<DerivedJ2DPtr>);
       using DerivedJ2D = typename std::remove_pointer<DerivedJ2DPtr>::type;
@@ -217,9 +204,7 @@ class GenericCamera {
     }
 
     bool res;
-    std::visit(
-        [&](const auto& cam) { res = cam.unproject(proj, p3d, d_p3d_d_proj); },
-        variant);
+    std::visit([&](const auto& cam) { res = cam.unproject(proj, p3d, d_p3d_d_proj); }, variant);
     return res;
   }
 
@@ -230,16 +215,14 @@ class GenericCamera {
   /// applied to points before projection
   /// @param[out] proj results of projection
   /// @param[out] proj_success if projection is valid
-  inline void project(const Eigen::aligned_vector<Vec3>& p3d, const Mat4& T_c_w,
-                      Eigen::aligned_vector<Vec2>& proj,
+  inline void project(const Eigen::aligned_vector<Vec3>& p3d, const Mat4& T_c_w, Eigen::aligned_vector<Vec2>& proj,
                       std::vector<bool>& proj_success) const {
     std::visit(
         [&](const auto& cam) {
           proj.resize(p3d.size());
           proj_success.resize(p3d.size());
           for (size_t i = 0; i < p3d.size(); i++) {
-            proj_success[i] =
-                cam.project(T_c_w * p3d[i].homogeneous(), proj[i]);
+            proj_success[i] = cam.project(T_c_w * p3d[i].homogeneous(), proj[i]);
           }
         },
         variant);
@@ -252,8 +235,7 @@ class GenericCamera {
   /// applied to points before projection
   /// @param[out] proj results of projection
   /// @param[out] proj_success if projection is valid
-  inline void project(const Eigen::aligned_vector<Vec4>& p3d, const Mat4& T_c_w,
-                      Eigen::aligned_vector<Vec2>& proj,
+  inline void project(const Eigen::aligned_vector<Vec4>& p3d, const Mat4& T_c_w, Eigen::aligned_vector<Vec2>& proj,
                       std::vector<bool>& proj_success) const {
     std::visit(
         [&](const auto& cam) {
@@ -271,8 +253,7 @@ class GenericCamera {
   /// @param[in] p3d points to project
   /// @param[out] proj results of projection
   /// @param[out] proj_success if projection is valid
-  inline void project(const Eigen::aligned_vector<Vec4>& p3d,
-                      Eigen::aligned_vector<Vec2>& proj,
+  inline void project(const Eigen::aligned_vector<Vec4>& p3d, Eigen::aligned_vector<Vec2>& proj,
                       std::vector<bool>& proj_success) const {
     std::visit(
         [&](const auto& cam) {
@@ -292,10 +273,8 @@ class GenericCamera {
   /// applied to points before projection
   /// @param[out] proj results of projection
   /// @param[out] proj_success if projection is valid
-  inline void project(
-      const Eigen::aligned_vector<Vec4>& p3d, const Mat4& T_c_w,
-      Eigen::aligned_vector<Vec2>& proj, std::vector<bool>& proj_success,
-      Eigen::aligned_vector<Vec2>& polar_azimuthal_angle) const {
+  inline void project(const Eigen::aligned_vector<Vec4>& p3d, const Mat4& T_c_w, Eigen::aligned_vector<Vec2>& proj,
+                      std::vector<bool>& proj_success, Eigen::aligned_vector<Vec2>& polar_azimuthal_angle) const {
     std::visit(
         [&](const auto& cam) {
           proj.resize(p3d.size());
@@ -320,8 +299,7 @@ class GenericCamera {
   /// @param[in] proj points to unproject
   /// @param[out] p3d results of unprojection
   /// @param[out] unproj_success if unprojection is valid
-  inline void unproject(const Eigen::aligned_vector<Vec2>& proj,
-                        Eigen::aligned_vector<Vec4>& p3d,
+  inline void unproject(const Eigen::aligned_vector<Vec2>& proj, Eigen::aligned_vector<Vec4>& p3d,
                         std::vector<bool>& unproj_success) const {
     std::visit(
         [&](const auto& cam) {
@@ -350,8 +328,7 @@ class GenericCamera {
   /// @brief Iterate over all possible types of the variant and construct that
   /// type that has a matching name
   template <int I>
-  static void visitAllTypes(GenericCamera<Scalar>& res,
-                            const std::string& name) {
+  static void visitAllTypes(GenericCamera<Scalar>& res, const std::string& name) {
     if constexpr (I >= 0) {
       using cam_t = typename std::variant_alternative<I, VariantT>::type;
       if (cam_t::getName() == name) {

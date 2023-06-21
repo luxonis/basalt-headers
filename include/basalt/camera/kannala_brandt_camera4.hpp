@@ -124,15 +124,11 @@ class KannalaBrandtCamera4 {
   /// @param[out] d_proj_d_param point if not nullptr computed Jacobian of
   /// projection with respect to intrinsic parameters
   /// @return if projection is valid
-  template <class DerivedPoint3D, class DerivedPoint2D,
-            class DerivedJ3D = std::nullptr_t,
+  template <class DerivedPoint3D, class DerivedPoint2D, class DerivedJ3D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                      Eigen::MatrixBase<DerivedPoint2D>& proj,
-                      DerivedJ3D d_proj_d_p3d = nullptr,
-                      DerivedJparam d_proj_d_param = nullptr) const {
-    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D,
-                                DerivedJparam, N>();
+  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d, Eigen::MatrixBase<DerivedPoint2D>& proj,
+                      DerivedJ3D d_proj_d_p3d = nullptr, DerivedJparam d_proj_d_param = nullptr) const {
+    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint3D>::Type p3d_eval(p3d);
 
@@ -194,24 +190,12 @@ class KannalaBrandtCamera4 {
 
         d_proj_d_p3d->setZero();
 
-        (*d_proj_d_p3d)(0, 0) =
-            fx *
-            (r_theta * r + x * r * d_r_theta_d_theta * d_theta_d_x -
-             x * x * r_theta / r) /
-            r2;
-        (*d_proj_d_p3d)(1, 0) =
-            fy * y * (d_r_theta_d_theta * d_theta_d_x * r - x * r_theta / r) /
-            r2;
+        (*d_proj_d_p3d)(0, 0) = fx * (r_theta * r + x * r * d_r_theta_d_theta * d_theta_d_x - x * x * r_theta / r) / r2;
+        (*d_proj_d_p3d)(1, 0) = fy * y * (d_r_theta_d_theta * d_theta_d_x * r - x * r_theta / r) / r2;
 
-        (*d_proj_d_p3d)(0, 1) =
-            fx * x * (d_r_theta_d_theta * d_theta_d_y * r - y * r_theta / r) /
-            r2;
+        (*d_proj_d_p3d)(0, 1) = fx * x * (d_r_theta_d_theta * d_theta_d_y * r - y * r_theta / r) / r2;
 
-        (*d_proj_d_p3d)(1, 1) =
-            fy *
-            (r_theta * r + y * r * d_r_theta_d_theta * d_theta_d_y -
-             y * y * r_theta / r) /
-            r2;
+        (*d_proj_d_p3d)(1, 1) = fy * (r_theta * r + y * r * d_r_theta_d_theta * d_theta_d_y - y * y * r_theta / r) / r2;
 
         (*d_proj_d_p3d)(0, 2) = fx * x * d_r_theta_d_theta * d_theta_d_z / r;
         (*d_proj_d_p3d)(1, 2) = fy * y * d_r_theta_d_theta * d_theta_d_z / r;
@@ -289,8 +273,7 @@ class KannalaBrandtCamera4 {
   /// theta at the solution
   /// @returns theta - root of the polynomial
   template <int ITER>
-  inline Scalar solveTheta(const Scalar& r_theta,
-                           Scalar& d_func_d_theta) const {
+  inline Scalar solveTheta(const Scalar& r_theta, Scalar& d_func_d_theta) const {
     const Scalar& k1 = param_[4];
     const Scalar& k2 = param_[5];
     const Scalar& k3 = param_[6];
@@ -351,15 +334,11 @@ class KannalaBrandtCamera4 {
   /// @param[out] d_p3d_d_param point if not nullptr computed Jacobian of
   /// unprojection with respect to intrinsic parameters
   /// @return if unprojection is valid
-  template <class DerivedPoint2D, class DerivedPoint3D,
-            class DerivedJ2D = std::nullptr_t,
+  template <class DerivedPoint2D, class DerivedPoint3D, class DerivedJ2D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj,
-                        Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                        DerivedJ2D d_p3d_d_proj = nullptr,
-                        DerivedJparam d_p3d_d_param = nullptr) const {
-    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D,
-                                  DerivedJparam, N>();
+  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj, Eigen::MatrixBase<DerivedPoint3D>& p3d,
+                        DerivedJ2D d_p3d_d_proj = nullptr, DerivedJparam d_p3d_d_param = nullptr) const {
+    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint2D>::Type proj_eval(proj);
 
@@ -391,8 +370,7 @@ class KannalaBrandtCamera4 {
     p3d[1] = my * scaling;
     p3d[2] = cos_theta;
 
-    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> ||
-                  !std::is_same_v<DerivedJparam, std::nullptr_t>) {
+    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> || !std::is_same_v<DerivedJparam, std::nullptr_t>) {
       Scalar d_thetad_d_mx = Scalar(0);
       Scalar d_thetad_d_my = Scalar(0);
       Scalar d_scaling_d_thetad = Scalar(0);
@@ -409,24 +387,20 @@ class KannalaBrandtCamera4 {
 
         theta2 = theta * theta;
 
-        d_scaling_d_thetad = (thetad * cos_theta / d_func_d_theta - sin_theta) /
-                             (thetad * thetad);
+        d_scaling_d_thetad = (thetad * cos_theta / d_func_d_theta - sin_theta) / (thetad * thetad);
 
         d_cos_d_thetad = sin_theta / d_func_d_theta;
 
-        d_scaling_d_k1 =
-            -cos_theta * theta * theta2 / (d_func_d_theta * thetad);
+        d_scaling_d_k1 = -cos_theta * theta * theta2 / (d_func_d_theta * thetad);
 
         d_cos_d_k1 = d_cos_d_thetad * theta * theta2;
       }
 
-      const Scalar d_res0_d_mx =
-          scaling + mx * d_scaling_d_thetad * d_thetad_d_mx;
+      const Scalar d_res0_d_mx = scaling + mx * d_scaling_d_thetad * d_thetad_d_mx;
       const Scalar d_res0_d_my = mx * d_scaling_d_thetad * d_thetad_d_my;
 
       const Scalar d_res1_d_mx = my * d_scaling_d_thetad * d_thetad_d_mx;
-      const Scalar d_res1_d_my =
-          scaling + my * d_scaling_d_thetad * d_thetad_d_my;
+      const Scalar d_res1_d_my = scaling + my * d_scaling_d_thetad * d_thetad_d_my;
 
       const Scalar d_res2_d_mx = -d_cos_d_thetad * d_thetad_d_mx;
       const Scalar d_res2_d_my = -d_cos_d_thetad * d_thetad_d_my;
@@ -516,8 +490,7 @@ class KannalaBrandtCamera4 {
     Eigen::aligned_vector<KannalaBrandtCamera4> res;
 
     VecN vec1;
-    vec1 << 379.045, 379.008, 505.512, 509.969, 0.00693023, -0.0013828,
-        -0.000272596, -0.000452646;
+    vec1 << 379.045, 379.008, 505.512, 509.969, 0.00693023, -0.0013828, -0.000272596, -0.000452646;
     res.emplace_back(vec1);
 
     return res;
