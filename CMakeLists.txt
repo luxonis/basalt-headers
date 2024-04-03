@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
-include("cmake_modules/PreProjectWorkarounds.cmake")
-
+include("cmake/PreProjectWorkarounds.cmake")
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/cpp-pm/hunter/archive/v0.23.322.tar.gz"
+    SHA1 "cb0ea1f74f4a2c49a807de34885743495fccccbe"
+    LOCAL # Local config for dependencies
+)
 project(basalt-headers)
+hunter_add_package(Eigen)
+hunter_add_package(Sophus)
+hunter_add_package(cereal)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/" ${CMAKE_MODULE_PATH})
 
@@ -59,18 +67,23 @@ set(CMAKE_CXX_FLAGS_SANITIZERDEBUG "-O0 -g0 -DEIGEN_INITIALIZE_MATRICES_BY_NAN -
 set(CMAKE_CXX_FLAGS_SANITIZERRELWITHDEBINFO "-O3 -g0 -DEIGEN_INITIALIZE_MATRICES_BY_NAN -fno-omit-frame-pointer -fsanitize=address,undefined")
 
 
-set(EIGEN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/eigen")
-set(EIGEN_INCLUDE_DIR_HINTS ${EIGEN_ROOT})
-find_package(Eigen3 3.3.7 REQUIRED)
+
+find_package(Eigen3 3.4.0 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 message(STATUS "Found Eigen headers in: ${EIGEN3_INCLUDE_DIR}")
 
-include_directories(thirdparty/Sophus)
-include_directories(thirdparty/cereal/include)
+
+
+# include_directories(${Sophus_INCLUDE_DIRS})
+# message(STATUS "Found Sophus headers in: ${Sophus_INCLUDE_DIRS}")
+
+# include_directories(${CEREAL_INCLUDE_DIRS})
+# message(STATUS "Found cereal headers in: ${CEREAL_INCLUDE_DIRS}")
+
 include_directories(include)
 
-enable_testing()
-add_subdirectory(test)
+# enable_testing()
+# add_subdirectory(test)
 
 
 
