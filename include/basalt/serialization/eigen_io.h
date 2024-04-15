@@ -57,13 +57,9 @@ namespace cereal {
 // detailed discussion and possible workarounds.
 
 // For binary-archives, don't save a size tag for compact representation.
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options,
-          int _MaxRows, int _MaxCols>
-std::enable_if_t<(_Rows > 0) && (_Cols > 0) &&
-                 !traits::is_text_archive<Archive>::value>
-serialize(
-    Archive& archive,
-    Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m) {
+template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+std::enable_if_t<(_Rows > 0) && (_Cols > 0) && !traits::is_text_archive<Archive>::value> serialize(
+    Archive& archive, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m) {
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < _Cols; j++) {
       archive(m(i, j));
@@ -78,13 +74,9 @@ serialize(
 // For text-archives, save size-tag even for constant size matrices, to ensure
 // that the serialization is more compact (e.g. for JSON with size tag is uses a
 // simple array, whereas without, it stores a list of pairs like ("value0", v0).
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options,
-          int _MaxRows, int _MaxCols>
-std::enable_if_t<(_Rows > 0) && (_Cols > 0) &&
-                 traits::is_text_archive<Archive>::value>
-serialize(
-    Archive& archive,
-    Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m) {
+template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+std::enable_if_t<(_Rows > 0) && (_Cols > 0) && traits::is_text_archive<Archive>::value> serialize(
+    Archive& archive, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m) {
   size_type s = static_cast<size_type>(_Rows * _Cols);
   archive(make_size_tag(s));
   if (s != _Rows * _Cols) {
@@ -97,11 +89,9 @@ serialize(
   }
 }
 
-template <class Archive, class _Scalar, int _Cols, int _Options, int _MaxRows,
-          int _MaxCols>
+template <class Archive, class _Scalar, int _Cols, int _Options, int _MaxRows, int _MaxCols>
 std::enable_if_t<(_Cols > 0), void> save(
-    Archive& archive, const Eigen::Matrix<_Scalar, Eigen::Dynamic, _Cols,
-                                          _Options, _MaxRows, _MaxCols>& m) {
+    Archive& archive, const Eigen::Matrix<_Scalar, Eigen::Dynamic, _Cols, _Options, _MaxRows, _MaxCols>& m) {
   archive(make_size_tag(static_cast<size_type>(m.size())));
   for (int i = 0; i < m.rows(); i++) {
     for (int j = 0; j < _Cols; j++) {
@@ -110,12 +100,9 @@ std::enable_if_t<(_Cols > 0), void> save(
   }
 }
 
-template <class Archive, class _Scalar, int _Cols, int _Options, int _MaxRows,
-          int _MaxCols>
+template <class Archive, class _Scalar, int _Cols, int _Options, int _MaxRows, int _MaxCols>
 std::enable_if_t<(_Cols > 0), void> load(
-    Archive& archive,
-    Eigen::Matrix<_Scalar, Eigen::Dynamic, _Cols, _Options, _MaxRows, _MaxCols>&
-        m) {
+    Archive& archive, Eigen::Matrix<_Scalar, Eigen::Dynamic, _Cols, _Options, _MaxRows, _MaxCols>& m) {
   size_type size;
   archive(make_size_tag(size));
   m.resize(Eigen::Index(size) / _Cols, _Cols);
@@ -126,11 +113,9 @@ std::enable_if_t<(_Cols > 0), void> load(
   }
 }
 
-template <class Archive, class _Scalar, int _Rows, int _Options, int _MaxRows,
-          int _MaxCols>
+template <class Archive, class _Scalar, int _Rows, int _Options, int _MaxRows, int _MaxCols>
 std::enable_if_t<(_Rows > 0), void> save(
-    Archive& archive, const Eigen::Matrix<_Scalar, _Rows, Eigen::Dynamic,
-                                          _Options, _MaxRows, _MaxCols>& m) {
+    Archive& archive, const Eigen::Matrix<_Scalar, _Rows, Eigen::Dynamic, _Options, _MaxRows, _MaxCols>& m) {
   archive(make_size_tag(static_cast<size_type>(m.size())));
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < m.cols(); j++) {
@@ -139,12 +124,9 @@ std::enable_if_t<(_Rows > 0), void> save(
   }
 }
 
-template <class Archive, class _Scalar, int _Rows, int _Options, int _MaxRows,
-          int _MaxCols>
+template <class Archive, class _Scalar, int _Rows, int _Options, int _MaxRows, int _MaxCols>
 std::enable_if_t<(_Rows > 0), void> load(
-    Archive& archive,
-    Eigen::Matrix<_Scalar, _Rows, Eigen::Dynamic, _Options, _MaxRows, _MaxCols>&
-        m) {
+    Archive& archive, Eigen::Matrix<_Scalar, _Rows, Eigen::Dynamic, _Options, _MaxRows, _MaxCols>& m) {
   size_type size;
   archive(make_size_tag(size));
   m.resize(_Rows, Eigen::Index(size) / _Rows);
@@ -155,11 +137,9 @@ std::enable_if_t<(_Rows > 0), void> load(
   }
 }
 
-template <class Archive, class _Scalar, int _Options, int _MaxRows,
-          int _MaxCols>
+template <class Archive, class _Scalar, int _Options, int _MaxRows, int _MaxCols>
 void save(Archive& archive,
-          const Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options,
-                              _MaxRows, _MaxCols>& m) {
+          const Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options, _MaxRows, _MaxCols>& m) {
   archive(make_size_tag(static_cast<size_type>(m.rows())));
   archive(make_size_tag(static_cast<size_type>(m.cols())));
   for (int i = 0; i < m.rows(); i++) {
@@ -169,11 +149,8 @@ void save(Archive& archive,
   }
 }
 
-template <class Archive, class _Scalar, int _Options, int _MaxRows,
-          int _MaxCols>
-void load(Archive& archive,
-          Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options,
-                        _MaxRows, _MaxCols>& m) {
+template <class Archive, class _Scalar, int _Options, int _MaxRows, int _MaxCols>
+void load(Archive& archive, Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic, _Options, _MaxRows, _MaxCols>& m) {
   size_type rows;
   size_type cols;
   archive(make_size_tag(rows));
@@ -188,23 +165,17 @@ void load(Archive& archive,
 
 template <class Archive>
 void serialize(Archive& ar, Sophus::SE3d& p) {
-  ar(cereal::make_nvp("px", p.translation()[0]),
-     cereal::make_nvp("py", p.translation()[1]),
-     cereal::make_nvp("pz", p.translation()[2]),
-     cereal::make_nvp("qx", p.so3().data()[0]),
-     cereal::make_nvp("qy", p.so3().data()[1]),
-     cereal::make_nvp("qz", p.so3().data()[2]),
+  ar(cereal::make_nvp("px", p.translation()[0]), cereal::make_nvp("py", p.translation()[1]),
+     cereal::make_nvp("pz", p.translation()[2]), cereal::make_nvp("qx", p.so3().data()[0]),
+     cereal::make_nvp("qy", p.so3().data()[1]), cereal::make_nvp("qz", p.so3().data()[2]),
      cereal::make_nvp("qw", p.so3().data()[3]));
 }
 
 template <class Archive>
 void serialize(Archive& ar, Sophus::Sim3d& p) {
-  ar(cereal::make_nvp("px", p.translation()[0]),
-     cereal::make_nvp("py", p.translation()[1]),
-     cereal::make_nvp("pz", p.translation()[2]),
-     cereal::make_nvp("qx", p.rxso3().data()[0]),
-     cereal::make_nvp("qy", p.rxso3().data()[1]),
-     cereal::make_nvp("qz", p.rxso3().data()[2]),
+  ar(cereal::make_nvp("px", p.translation()[0]), cereal::make_nvp("py", p.translation()[1]),
+     cereal::make_nvp("pz", p.translation()[2]), cereal::make_nvp("qx", p.rxso3().data()[0]),
+     cereal::make_nvp("qy", p.rxso3().data()[1]), cereal::make_nvp("qz", p.rxso3().data()[2]),
      cereal::make_nvp("qw", p.rxso3().data()[3]));
 }
 

@@ -727,31 +727,21 @@ TEST(SplineTest, CrossProductTest) {
   v1.setRandom();
   v2.setRandom();
 
-  J_cross =
-      Sophus::SO3d::hat(J_1 * v1) * J_2 - Sophus::SO3d::hat(J_2 * v2) * J_1;
+  J_cross = Sophus::SO3d::hat(J_1 * v1) * J_2 - Sophus::SO3d::hat(J_2 * v2) * J_1;
 
   test_jacobian(
-      "cross_prod_test1", J_cross,
-      [&](const Eigen::Vector3d &x) {
-        return (J_1 * (v1 + x)).cross(J_2 * (v2 + x));
-      },
+      "cross_prod_test1", J_cross, [&](const Eigen::Vector3d &x) { return (J_1 * (v1 + x)).cross(J_2 * (v2 + x)); },
       Eigen::Vector3d::Zero());
 
   J_cross = -Sophus::SO3d::hat(J_2 * v2) * J_1;
 
   test_jacobian(
-      "cross_prod_test2", J_cross,
-      [&](const Eigen::Vector3d &x) {
-        return (J_1 * (v1 + x)).cross(J_2 * v2);
-      },
+      "cross_prod_test2", J_cross, [&](const Eigen::Vector3d &x) { return (J_1 * (v1 + x)).cross(J_2 * v2); },
       Eigen::Vector3d::Zero());
 
   J_cross = Sophus::SO3d::hat(J_1 * v1) * J_2;
 
   test_jacobian(
-      "cross_prod_test2", J_cross,
-      [&](const Eigen::Vector3d &x) {
-        return (J_1 * v1).cross(J_2 * (v2 + x));
-      },
+      "cross_prod_test2", J_cross, [&](const Eigen::Vector3d &x) { return (J_1 * v1).cross(J_2 * (v2 + x)); },
       Eigen::Vector3d::Zero());
 }

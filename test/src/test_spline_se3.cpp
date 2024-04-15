@@ -162,11 +162,7 @@ void testAccelRes(const basalt::Se3Spline<N> &s, int64_t t_ns) {
     ss << "Spline order " << N << " d_accel_res_d_g";
 
     test_jacobian(
-        ss.str(), J_g,
-        [&](const Sophus::Vector3d &x) {
-          return s.accelResidual(t_ns, measurement, bias, g + x);
-        },
-        x0);
+        ss.str(), J_g, [&](const Sophus::Vector3d &x) { return s.accelResidual(t_ns, measurement, bias, g + x); }, x0);
   }
 }
 
@@ -174,8 +170,7 @@ template <int N>
 void testOrientationRes(const basalt::Se3Spline<N> &s, int64_t t_ns) {
   typename basalt::Se3Spline<N>::SO3JacobianStruct J_spline;
 
-  Sophus::SO3d measurement =
-      s.pose(t_ns).so3();  // * Sophus::expd(Sophus::Vector6d::Random() / 10);
+  Sophus::SO3d measurement = s.pose(t_ns).so3();  // * Sophus::expd(Sophus::Vector6d::Random() / 10);
 
   s.orientationResidual(t_ns, measurement, &J_spline);
 
@@ -214,9 +209,7 @@ template <int N>
 void testPositionRes(const basalt::Se3Spline<N> &s, int64_t t_ns) {
   typename basalt::Se3Spline<N>::PosJacobianStruct J_spline;
 
-  Eigen::Vector3d measurement =
-      s.pose(t_ns)
-          .translation();  // * Sophus::expd(Sophus::Vector6d::Random() / 10);
+  Eigen::Vector3d measurement = s.pose(t_ns).translation();  // * Sophus::expd(Sophus::Vector6d::Random() / 10);
 
   s.positionResidual(t_ns, measurement, &J_spline);
 

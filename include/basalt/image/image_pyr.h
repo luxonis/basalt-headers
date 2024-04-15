@@ -60,9 +60,7 @@ class ManagedImagePyr {
   ///
   /// @param other image to use for the pyramid level 0
   /// @param num_level number of levels for the pyramid
-  inline ManagedImagePyr(const ManagedImage<T>& other, size_t num_levels) {
-    setFromImage(other, num_levels);
-  }
+  inline ManagedImagePyr(const ManagedImage<T>& other, size_t num_levels) { setFromImage(other, num_levels); }
 
   /// @brief Set image pyramid from other image.
   ///
@@ -82,9 +80,7 @@ class ManagedImagePyr {
   }
 
   /// @brief Extrapolate image after border with reflection.
-  static inline int border101(int x, int h) {
-    return h - 1 - std::abs(h - 1 - x);
-  }
+  static inline int border101(int x, int h) { return h - 1 - std::abs(h - 1 - x); }
 
   /// @brief Subsample the image twice in each direction.
   ///
@@ -101,8 +97,7 @@ class ManagedImagePyr {
   /// \f]
   /// and removing every even-numbered row and column.
   static void subsample(const Image<const T>& img, Image<T>& img_sub) {
-    static_assert(std::is_same<T, uint16_t>::value ||
-                  std::is_same<T, uint8_t>::value);
+    static_assert(std::is_same<T, uint16_t>::value || std::is_same<T, uint8_t>::value);
 
     constexpr int kernel[5] = {1, 4, 6, 4, 1};
 
@@ -119,9 +114,8 @@ class ManagedImagePyr {
         const T* row_p2 = img.RowPtr(border101(2 * r + 2, img.h));
 
         for (int c = 0; c < int(img.w); c++) {
-          tmp(r, c) = kernel[0] * int(row_m2[c]) + kernel[1] * int(row_m1[c]) +
-                      kernel[2] * int(row[c]) + kernel[3] * int(row_p1[c]) +
-                      kernel[4] * int(row_p2[c]);
+          tmp(r, c) = kernel[0] * int(row_m2[c]) + kernel[1] * int(row_m1[c]) + kernel[2] * int(row[c]) +
+                      kernel[3] * int(row_p1[c]) + kernel[4] * int(row_p2[c]);
         }
       }
     }
@@ -136,8 +130,7 @@ class ManagedImagePyr {
         const int* row_p2 = tmp.RowPtr(border101(2 * c + 2, tmp.h));
 
         for (int r = 0; r < int(tmp.w); r++) {
-          int val_int = kernel[0] * row_m2[r] + kernel[1] * row_m1[r] +
-                        kernel[2] * row[r] + kernel[3] * row_p1[r] +
+          int val_int = kernel[0] * row_m2[r] + kernel[1] * row_m1[r] + kernel[2] * row[r] + kernel[3] * row_p1[r] +
                         kernel[4] * row_p2[r];
           T val = ((val_int + (1 << 7)) >> 8);
           img_sub(c, r) = val;
@@ -163,9 +156,7 @@ class ManagedImagePyr {
   ///
   /// @return const image of of the underlying mipmap representation which can
   /// be for example used for visualization
-  inline const Image<const T> mipmap() const {
-    return image.SubImage(0, 0, image.w, image.h);
-  }
+  inline const Image<const T> mipmap() const { return image.SubImage(0, 0, image.w, image.h); }
 
   /// @brief Return coordinate offset of the image in the mipmap image.
   ///

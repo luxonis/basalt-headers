@@ -128,8 +128,7 @@ class StereographicParam {
 
     const Scalar norm_inv = Scalar(2) / (Scalar(1) + r2);
 
-    Vec4 res(proj[0] * norm_inv, proj[1] * norm_inv, norm_inv - Scalar(1),
-             Scalar(0));
+    Vec4 res(proj[0] * norm_inv, proj[1] * norm_inv, norm_inv - Scalar(1), Scalar(0));
 
     if (d_r_d_p) {
       const Scalar norm_inv2 = norm_inv * norm_inv;

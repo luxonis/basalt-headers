@@ -98,9 +98,7 @@ TEST(Image, ImageInterpolateGrad) {
 
   test_jacobian(
       "d_res_d_x", J_x,
-      [&](const Eigen::Vector2d& x) {
-        return Eigen::Matrix<double, 1, 1>(img.interp<double>(pd + x));
-      },
+      [&](const Eigen::Vector2d& x) { return Eigen::Matrix<double, 1, 1>(img.interp<double>(pd + x)); },
       Eigen::Vector2d::Zero(),
       1);  // only works with eps=1 with this gradient interpolation
 }
@@ -118,9 +116,7 @@ TEST(Image, ImageInterpolateGradBilinearExact) {
 
   test_jacobian(
       "d_res_d_x", J_x,
-      [&](const Eigen::Vector2d& x) {
-        return Eigen::Matrix<double, 1, 1>(img.interp<double>(pd + x));
-      },
+      [&](const Eigen::Vector2d& x) { return Eigen::Matrix<double, 1, 1>(img.interp<double>(pd + x)); },
       Eigen::Vector2d::Zero(), 1e-4);
 }
 
@@ -137,9 +133,6 @@ TEST(Image, ImageInterpolateGradCubicSplines) {
 
   test_jacobian(
       "d_res_d_x", J_x,
-      [&](const Eigen::Vector2d& x) {
-        return Eigen::Matrix<double, 1, 1>(
-            img.interpCubicSplines<double>(pd + x));
-      },
+      [&](const Eigen::Vector2d& x) { return Eigen::Matrix<double, 1, 1>(img.interpCubicSplines<double>(pd + x)); },
       Eigen::Vector2d::Zero(), 1e-4);
 }

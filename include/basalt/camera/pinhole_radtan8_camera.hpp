@@ -134,12 +134,12 @@ class PinholeRadtan8Camera {
     rpmax_ = S0;
 
     // Good enough constants for the tested calibrations
-    const int MAX_ITERS{1000};          // Gradient ascent (GA) max iterations
-    const Scalar STEP_SIZE{0.1};        // GA fixed "learning rate"
-    const Scalar MIN_REL_STEP{0.0001};  // GA minimum step (relative) size
-    const Scalar NUDGE{0.1};  // Image center offset for the GA first guess
+    const int MAX_ITERS{1000};             // Gradient ascent (GA) max iterations
+    const Scalar STEP_SIZE{0.1};           // GA fixed "learning rate"
+    const Scalar MIN_REL_STEP{0.0001};     // GA minimum step (relative) size
+    const Scalar NUDGE{0.1};               // Image center offset for the GA first guess
     const Scalar CORNER_BOUND_SCALE{1.5};  // Divergence bounds scaler
-    const Scalar RPMAX_SCALE{0.85};  // Shrink the resulting circle to be safe
+    const Scalar RPMAX_SCALE{0.85};        // Shrink the resulting circle to be safe
 
     const Scalar& fx = param_[0];
     const Scalar& fy = param_[1];
@@ -300,15 +300,11 @@ class PinholeRadtan8Camera {
   /// @param[out] d_proj_d_param point if not nullptr computed Jacobian of
   /// projection with respect to intrinsic parameters
   /// @return if projection is valid
-  template <class DerivedPoint3D, class DerivedPoint2D,
-            class DerivedJ3D = std::nullptr_t,
+  template <class DerivedPoint3D, class DerivedPoint2D, class DerivedJ3D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                      Eigen::MatrixBase<DerivedPoint2D>& proj,
-                      DerivedJ3D d_proj_d_p3d = nullptr,
-                      DerivedJparam d_proj_d_param = nullptr) const {
-    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D,
-                                DerivedJparam, N>();
+  inline bool project(const Eigen::MatrixBase<DerivedPoint3D>& p3d, Eigen::MatrixBase<DerivedPoint2D>& proj,
+                      DerivedJ3D d_proj_d_p3d = nullptr, DerivedJparam d_proj_d_param = nullptr) const {
+    checkProjectionDerivedTypes<DerivedPoint3D, DerivedPoint2D, DerivedJ3D, DerivedJparam, N>();
 
     const typename EvalOrReference<DerivedPoint3D>::Type p3d_eval(p3d);
 
@@ -332,8 +328,7 @@ class PinholeRadtan8Camera {
     const Scalar xp = x / z;
     const Scalar yp = y / z;
     const Scalar rp2 = xp * xp + yp * yp;
-    const Scalar cdist = (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3))) /
-                         (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6)));
+    const Scalar cdist = (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3))) / (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6)));
     const Scalar deltaX = S2 * p1 * xp * yp + p2 * (rp2 + S2 * xp * xp);
     const Scalar deltaY = S2 * p2 * xp * yp + p1 * (rp2 + S2 * yp * yp);
     const Scalar xpp = xp * cdist + deltaX;
@@ -356,7 +351,6 @@ class PinholeRadtan8Camera {
 
       d_proj_d_p3d->setZero();
 
-      // clang-format off
       const Scalar v0 = p1 * y;
       const Scalar v1 = p2 * x;
       const Scalar v2 = z * z * z * z * z * z;
@@ -399,7 +393,6 @@ class PinholeRadtan8Camera {
       const Scalar dv_dx = v29 * v34;
       const Scalar dv_dy = v34 * (v13 * (S3 * v0 + v1) - v19 * v4 + v22 * (v17 + v21 * v4));
       const Scalar dv_dz = -v30 * v33 * (v13 * (p1 * (v3 + S3 * v4) + v27 * v31) - v19 * v5 * y + v32 * y);
-      // clang-format on
 
       (*d_proj_d_p3d)(0, 0) = du_dx;
       (*d_proj_d_p3d)(0, 1) = du_dy;
@@ -513,8 +506,7 @@ class PinholeRadtan8Camera {
   /// @param[out] d_dist_d_undist if not nullptr, computed Jacobian of @p dist
   /// w.r.t @p undist
   template <class DerivedJundist = std::nullptr_t>
-  inline void distort(const Vec2& undist, Vec2& dist,
-                      DerivedJundist d_dist_d_undist = nullptr) const {
+  inline void distort(const Vec2& undist, Vec2& dist, DerivedJundist d_dist_d_undist = nullptr) const {
     const Scalar& k1 = param_[4];
     const Scalar& k2 = param_[5];
     const Scalar& p1 = param_[6];
@@ -527,8 +519,7 @@ class PinholeRadtan8Camera {
     const Scalar xp = undist.x();
     const Scalar yp = undist.y();
     const Scalar rp2 = xp * xp + yp * yp;
-    const Scalar cdist = (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3))) /
-                         (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6)));
+    const Scalar cdist = (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3))) / (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6)));
     const Scalar deltaX = S2 * p1 * xp * yp + p2 * (rp2 + S2 * xp * xp);
     const Scalar deltaY = S2 * p2 * xp * yp + p1 * (rp2 + S2 * yp * yp);
     const Scalar xpp = xp * cdist + deltaX;
@@ -559,15 +550,12 @@ class PinholeRadtan8Camera {
       const Scalar v16 = v12 + v2 * (k2 + S2 * v11);
       const Scalar v17 = S2 * v16;
       const Scalar v18 = xp * yp;
-      const Scalar v19 =
-          S2 * v7 * (-v14 * v18 + v16 * v18 * v5 + v6 * (p1 * xp + p2 * yp));
+      const Scalar v19 = S2 * v7 * (-v14 * v18 + v16 * v18 * v5 + v6 * (p1 * xp + p2 * yp));
 
-      const Scalar dxpp_dxp =
-          v7 * (-v0 * v15 + v10 * (v8 + S3 * v9) + v5 * (v0 * v17 + v13));
+      const Scalar dxpp_dxp = v7 * (-v0 * v15 + v10 * (v8 + S3 * v9) + v5 * (v0 * v17 + v13));
       const Scalar dxpp_dyp = v19;
       const Scalar dypp_dxp = v19;
-      const Scalar dypp_dyp =
-          v7 * (-v1 * v15 + v10 * (S3 * v8 + v9) + v5 * (v1 * v17 + v13));
+      const Scalar dypp_dyp = v7 * (-v1 * v15 + v10 * (S3 * v8 + v9) + v5 * (v1 * v17 + v13));
 
       (*d_dist_d_undist)(0, 0) = dxpp_dxp;
       (*d_dist_d_undist)(0, 1) = dxpp_dyp;
@@ -608,15 +596,11 @@ class PinholeRadtan8Camera {
   /// @param[out] d_p3d_d_param \b UNIMPLEMENTED if not nullptr, computed
   /// Jacobian of unprojection with respect to intrinsic parameters
   /// @return whether the unprojection is valid
-  template <class DerivedPoint2D, class DerivedPoint3D,
-            class DerivedJ2D = std::nullptr_t,
+  template <class DerivedPoint2D, class DerivedPoint3D, class DerivedJ2D = std::nullptr_t,
             class DerivedJparam = std::nullptr_t>
-  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj,
-                        Eigen::MatrixBase<DerivedPoint3D>& p3d,
-                        DerivedJ2D d_p3d_d_proj = nullptr,
-                        DerivedJparam d_p3d_d_param = nullptr) const {
-    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D,
-                                  DerivedJparam, N>();
+  inline bool unproject(const Eigen::MatrixBase<DerivedPoint2D>& proj, Eigen::MatrixBase<DerivedPoint3D>& p3d,
+                        DerivedJ2D d_p3d_d_proj = nullptr, DerivedJparam d_p3d_d_param = nullptr) const {
+    checkUnprojectionDerivedTypes<DerivedPoint2D, DerivedPoint3D, DerivedJ2D, DerivedJparam, N>();
     const typename EvalOrReference<DerivedPoint2D>::Type proj_eval(proj);
 
     const Scalar& fx = param_[0];
@@ -659,8 +643,7 @@ class PinholeRadtan8Camera {
     Scalar yp = y0;
     for (int i = 0; i < N; i++) {
       const Scalar rp2 = xp * xp + yp * yp;
-      const Scalar icdist = (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6))) /
-                            (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3)));
+      const Scalar icdist = (S1 + rp2 * (k4 + rp2 * (k5 + rp2 * k6))) / (S1 + rp2 * (k1 + rp2 * (k2 + rp2 * k3)));
       if (icdist <= S0) {
         return false;  // OpenCV just sets xp=x0, yp=y0 instead
       }
@@ -677,8 +660,7 @@ class PinholeRadtan8Camera {
     p3d[1] = yp * norm_inv;
     p3d[2] = norm_inv;
 
-    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> ||
-                  !std::is_same_v<DerivedJparam, std::nullptr_t>) {
+    if constexpr (!std::is_same_v<DerivedJ2D, std::nullptr_t> || !std::is_same_v<DerivedJparam, std::nullptr_t>) {
       BASALT_ASSERT(false);  // Not implemented
       // If this gets implemented update: docs, benchmarks and tests
     }
@@ -732,9 +714,8 @@ class PinholeRadtan8Camera {
     VecN vec1{};
 
     // Odyssey+, original rpmax: 2.7941114902496338 (see bit.ly/monado-datasets)
-    vec1 << 269.0600776672363, 269.1679859161377, 324.3333053588867,
-        245.22674560546875, 0.6257319450378418, 0.46612036228179932,
-        -0.00018502399325370789, -4.2882973502855748e-5, 0.0041795829311013222,
+    vec1 << 269.0600776672363, 269.1679859161377, 324.3333053588867, 245.22674560546875, 0.6257319450378418,
+        0.46612036228179932, -0.00018502399325370789, -4.2882973502855748e-5, 0.0041795829311013222,
         0.89431935548782349, 0.54253977537155151, 0.0662121474742889;
 
     res.emplace_back(vec1);

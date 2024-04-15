@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 
 #include <basalt/spline/rd_spline.h>
+#include <eigen3/Eigen/src/Core/Matrix.h>
 #include <basalt/calibration/calib_bias.hpp>
 #include <basalt/camera/generic_camera.hpp>
 
@@ -51,7 +52,9 @@ template <class Scalar>
 struct Calibration {
   using Ptr = std::shared_ptr<Calibration>;
   using SE3 = Sophus::SE3<Scalar>;
+  using Vec4 = Eigen::Matrix<Scalar, 4, 1>;
   using Vec3 = Eigen::Matrix<Scalar, 3, 1>;
+  using Vec2 = Eigen::Matrix<Scalar, 2, 1>;
 
   /// @brief Default constructor.
   Calibration() {
@@ -66,25 +69,60 @@ struct Calibration {
     gyro_bias_std.setConstant(0.0001);
   }
 
+  /// Takes a 3D point described with the UV coordinates and (non-inverse) depth
+  /// as viewed from the camera i and returns the UV coordinates and depth of
+  /// that same point in as viewed from the camera j.
+  /// @param T_ci_cj cam j pose w.r.t. cam i frame
+  /// @param i_idx camera index of camera i
+  /// @param j_idx camera index of camera j
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv, Scalar& cj_depth, const SE3 T_ci_cj,
+                          size_t i_idx, size_t j_idx) const {
+    bool valid = true;
+
+    Vec4 ci_xyzw;
+    valid &= intrinsics[i_idx].unproject(ci_uv, ci_xyzw);
+    ci_xyzw = ci_xyzw * ci_depth;
+    ci_xyzw.w() = 1;
+
+    Vec4 cj_xyzw = T_ci_cj.inverse() * ci_xyzw;
+    valid &= intrinsics[j_idx].project(cj_xyzw, cj_uv);
+
+    Vec4 ci_cj_xyzw = T_ci_cj.translation().homogeneous();
+    cj_depth = (ci_xyzw - ci_cj_xyzw).norm();
+
+    return valid;
+  }
+
+  /// Calls projectBetweenCams assuming the pose between cam i and j is the one
+  /// from the calibration's extrinsics
+  bool projectBetweenCams(const Vec2& ci_uv, Scalar ci_depth, Vec2& cj_uv, Scalar& cj_depth, size_t i, size_t j) const {
+    SE3 T_ci_cj = T_i_c[i].inverse() * T_i_c[j];
+    return projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, T_ci_cj, i, j);
+  }
+
+  Vec2 viewOffset(const Vec2& ci_uv, Scalar ci_depth, size_t i, size_t j) const {
+    Vec2 cj_uv;
+    Scalar cj_depth;
+    projectBetweenCams(ci_uv, ci_depth, cj_uv, cj_depth, i, j);
+
+    Vec2 view_offset = ci_uv - cj_uv;
+    return view_offset;
+  }
+
   /// @brief Cast to other scalar type
   template <class Scalar2>
   Calibration<Scalar2> cast() const {
     Calibration<Scalar2> new_cam;
 
-    for (const auto& v : T_i_c)
-      new_cam.T_i_c.emplace_back(v.template cast<Scalar2>());
-    for (const auto& v : intrinsics)
-      new_cam.intrinsics.emplace_back(v.template cast<Scalar2>());
-    for (const auto& v : vignette)
-      new_cam.vignette.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : T_i_c) new_cam.T_i_c.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : intrinsics) new_cam.intrinsics.emplace_back(v.template cast<Scalar2>());
+    for (const auto& v : vignette) new_cam.vignette.emplace_back(v.template cast<Scalar2>());
 
     new_cam.resolution = resolution;
     new_cam.cam_time_offset_ns = cam_time_offset_ns;
 
-    new_cam.calib_accel_bias.getParam() =
-        calib_accel_bias.getParam().template cast<Scalar2>();
-    new_cam.calib_gyro_bias.getParam() =
-        calib_gyro_bias.getParam().template cast<Scalar2>();
+    new_cam.calib_accel_bias.getParam() = calib_accel_bias.getParam().template cast<Scalar2>();
+    new_cam.calib_gyro_bias.getParam() = calib_gyro_bias.getParam().template cast<Scalar2>();
 
     new_cam.imu_update_rate = imu_update_rate;
 
@@ -148,17 +186,13 @@ struct Calibration {
   ///
   /// \f$ \sigma_d = \sigma_c \sqrt{r} \f$, where \f$ r \f$ is IMU update
   /// rate.
-  inline Vec3 dicrete_time_gyro_noise_std() const {
-    return gyro_noise_std * std::sqrt(imu_update_rate);
-  }
+  inline Vec3 dicrete_time_gyro_noise_std() const { return gyro_noise_std * std::sqrt(imu_update_rate); }
 
   /// @brief Dicrete time accelerometer noise standard deviation.
   ///
   /// \f$ \sigma_d = \sigma_c \sqrt{r} \f$, where \f$ r \f$ is IMU update
   /// rate.
-  inline Vec3 dicrete_time_accel_noise_std() const {
-    return accel_noise_std * std::sqrt(imu_update_rate);
-  }
+  inline Vec3 dicrete_time_accel_noise_std() const { return accel_noise_std * std::sqrt(imu_update_rate); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
