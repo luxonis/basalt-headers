@@ -10,7 +10,7 @@ HunterGate(
 
 project(basalt-headers VERSION 0.1.0 LANGUAGES CXX)
 
-hunter_add_package(Eigen)
+# hunter_add_package(Eigen)
 hunter_add_package(Sophus)
 hunter_add_package(cereal)
 
