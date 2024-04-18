@@ -103,8 +103,18 @@ class RationalPolynomialCamera {
 
   /// @brief Set parameters from an initialization vector
   void setFromInit(const Vec4& init) {
-    param_.head<4>() = init;
-    param_.segment<8>(4).setZero();  // Reset distortion coefficients
+    param_[0] = init[0];
+    param_[1] = init[1];
+    param_[2] = init[2];
+    param_[3] = init[3];
+    param_[4] = 0;
+    param_[5] = 0;
+    param_[6] = 0;
+    param_[7] = 0;
+    param_[8] = 0;
+    param_[9] = 0;
+    param_[10] = 0;
+    param_[11] = 0;
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
