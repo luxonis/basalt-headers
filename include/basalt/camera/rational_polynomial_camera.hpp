@@ -22,6 +22,7 @@ class RationalPolynomialCamera {
   static constexpr int N = 12;  // Number of intrinsic parameters: fx, fy, cx, cy, k1, k2, k3, k4, k5, p1, p2, p3
 
   using Vec2 = Eigen::Matrix<Scalar, 2, 1>;
+  using Vec3 = Eigen::Matrix<Scalar, 3, 1>;
   using Vec4 = Eigen::Matrix<Scalar, 4, 1>;
   using Vec12 = Eigen::Matrix<Scalar, 12, 1>;
 
