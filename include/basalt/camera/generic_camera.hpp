@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <basalt/camera/kannala_brandt_camera4.hpp>
 #include <basalt/camera/pinhole_camera.hpp>
 #include <basalt/camera/pinhole_radtan8_camera.hpp>
-#include <basalt/camera/rational_polynomial_camera.hpp>
 #include <basalt/camera/unified_camera.hpp>
 
 #include <variant>

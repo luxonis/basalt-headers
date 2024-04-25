@@ -116,7 +116,7 @@ target_link_libraries(basalt-headers INTERFACE Eigen3::Eigen Sophus::Sophus cere
 # Associate target with include directory
 target_include_directories(basalt-headers INTERFACE
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE::include>"
+    "$<INSTALL_INTERFACE:include>"
 )
 
 # List all header files with target_sources.
