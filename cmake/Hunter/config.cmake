@@ -8,6 +8,8 @@ hunter_config(
     VERSION 1.1.0
     URL "https://github.com/strasdat/Sophus/archive/936265f5815dee546a3583ceba58c234c2ecb271.zip"
     SHA1 "7f54e06fb1680910c465e12ea85fc414ce7a9f9e" 
+    CMAKE_ARGS
+        CMAKE_CXX_FLAGS=-Wno-array-bounds
 )
 
 hunter_config(
