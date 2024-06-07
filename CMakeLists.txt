@@ -8,7 +8,7 @@ HunterGate(
     LOCAL # Local config for dependencies
 )
 
-project(basalt-headers VERSION 0.1.0 LANGUAGES CXX)
+project(basalt-headers VERSION 0.1.0)
 
 hunter_add_package(fmt)
 hunter_add_package(Eigen)

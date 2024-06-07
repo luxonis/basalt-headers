@@ -6,8 +6,8 @@ hunter_config(
 hunter_config(
     Sophus
     VERSION 1.22.10
-    URL "https://github.com/strasdat/Sophus/archive/refs/tags/1.22.10.zip"
-    SHA1 "59ca08856bff89b7f1bd010e1d2908140090de43" 
+    URL "https://github.com/luxonis/Sophus/archive/refs/heads/hunterized.zip"
+    SHA1 "ff17d3dce1bcadabbc9fb83845a29974377d7f95" 
     CMAKE_ARGS
         BUILD_SOPHUS_TESTS=OFF
         BUILD_SOPHUS_EXAMPLES=OFF
