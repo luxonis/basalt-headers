@@ -5,12 +5,12 @@ hunter_config(
 
 hunter_config(
     Sophus
-    VERSION 1.1.0
-    URL "https://github.com/strasdat/Sophus/archive/936265f5815dee546a3583ceba58c234c2ecb271.zip"
-    SHA1 "7f54e06fb1680910c465e12ea85fc414ce7a9f9e" 
+    VERSION 1.22.10
+    URL "https://github.com/strasdat/Sophus/archive/refs/tags/1.22.10.zip"
+    SHA1 "59ca08856bff89b7f1bd010e1d2908140090de43" 
     CMAKE_ARGS
-        BUILD_TESTS=OFF
-        BUILD_EXAMPLES=OFF
+        BUILD_SOPHUS_TESTS=OFF
+        BUILD_SOPHUS_EXAMPLES=OFF
 )
 
 hunter_config(
