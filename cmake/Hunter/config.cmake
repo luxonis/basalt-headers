@@ -1,6 +1,9 @@
 hunter_config(
     Eigen
     VERSION 3.4.0
+    CMAKE_ARGS
+        EIGEN_DONT_PARALLELIZE=ON
+        EIGEN_INITIALIZE_MATRICES_BY_NAN=ON
 )
 
 hunter_config(
