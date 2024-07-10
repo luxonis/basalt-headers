@@ -9,13 +9,12 @@ hunter_config(
 hunter_config(
     Sophus
     VERSION 1.22.10
-    URL "https://github.com/luxonis/Sophus/archive/refs/heads/hunterized.zip"
-    SHA1 "ff17d3dce1bcadabbc9fb83845a29974377d7f95" 
+    URL "https://github.com/luxonis/Sophus/archive/54e9b230edc4df47f819cef0d15b1fcc165342df.zip"
+    SHA1 "53493ab699bf1ef5d3d8ab2892f8eaa80cf1dfc3" 
     CMAKE_ARGS
         BUILD_SOPHUS_TESTS=OFF
         BUILD_SOPHUS_EXAMPLES=OFF
 )
-
 hunter_config(
     cereal
     VERSION 1.3.0
