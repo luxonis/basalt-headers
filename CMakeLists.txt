@@ -1,19 +1,11 @@
 cmake_minimum_required(VERSION 3.10...3.18)
 
+include(cmake/vcpkg.cmake)
 include(CMakePackageConfigHelpers)
 include("cmake/HunterGate.cmake")
-HunterGate(
-    URL "https://github.com/cpp-pm/hunter/archive/v0.23.322.tar.gz"
-    SHA1 "cb0ea1f74f4a2c49a807de34885743495fccccbe"
-    LOCAL # Local config for dependencies
-)
 
 project(basalt-headers VERSION 0.1.0)
 
-hunter_add_package(fmt)
-hunter_add_package(Eigen)
-hunter_add_package(Sophus)
-hunter_add_package(cereal)
 
 include(GNUInstallDirs)
 include(CTest) # note: this adds a BUILD_TESTING which defaults to ON
