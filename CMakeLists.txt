@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10...3.18)
 
-include(cmake/vcpkg.cmake)
 include(CMakePackageConfigHelpers)
-include("cmake/HunterGate.cmake")
 
 project(basalt-headers VERSION 0.1.0)
 
